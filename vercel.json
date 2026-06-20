@@ -3,6 +3,9 @@
   "outputDirectory": "client/dist",
   "installCommand": "echo skip",
   "framework": "vite",
+  "env": {
+    "VITE_API_URL": "https://nenthom-server-9nghiu52r-tanloc172s-projects.vercel.app/api"
+  },
   "rewrites": [
     { "source": "/(.*)", "destination": "/index.html" }
   ]

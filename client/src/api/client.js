@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Uses Vite proxy in dev; same-origin in prod. Cookies carry the auth token.
 const api = axios.create({
-  baseURL: '/api',
+  baseURL: import.meta.env.VITE_API_URL || '/api',
   withCredentials: true,
 });
 
