@@ -82,7 +82,7 @@ const REASONS = [
 ];
 
 const FALLBACK_REVIEWS = [
-  { reviewerName: 'Minh Anh',   productName: 'Khách hàng thân thiết', rating: 5, comment: 'Mùi hương tinh tế, cháy rất lâu và đều. Cả căn phòng như một spa thu nhỏ.' },
+  { reviewerName: 'Minh ',   productName: 'Khách hàng thân thiết', rating: 5, comment: 'Mùi hương tinh tế, cháy rất lâu và đều. Cả căn phòng như một spa thu nhỏ.' },
   { reviewerName: 'Hoàng Long', productName: 'Đã mua 8 sản phẩm',     rating: 5, comment: 'Đóng gói sang trọng, làm quà tặng cực kỳ ưng ý. Sẽ tiếp tục ủng hộ shop.' },
   { reviewerName: 'Thu Hà',     productName: 'Khách hàng mới',        rating: 5, comment: 'Hương oải hương giúp tôi ngủ ngon hơn hẳn. Chất lượng vượt mong đợi.' },
 ];
