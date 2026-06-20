@@ -59,7 +59,7 @@ const bannerToSlide = (b, i) => ({
   img: b.imageUrl || '',
   bg: BG_FALLBACKS[i % BG_FALLBACKS.length],
   glow: '70% 48%',
-  a: 'Mua ngay',
+  a: 'Mua ngayy',
   b: 'Xem thêm',
   linkUrl: b.linkUrl || '/products',
 });
