@@ -73,6 +73,7 @@ h1, h2, h3 { line-height: 1.2; }
 @keyframes shimmer { 0% { background-position: -468px 0; } 100% { background-position: 468px 0; } }
 @keyframes pop { 0% { transform: scale(.6); } 60% { transform: scale(1.15); } 100% { transform: scale(1); } }
 @keyframes flicker { 0%, 100% { opacity: 1; transform: scale(1); } 45% { opacity: .85; transform: scale(.97) translateX(1px); } 70% { opacity: .95; transform: scale(1.02); } }
+@keyframes spin { to { transform: rotate(360deg); } }
 
 .main > * { animation: fadeInUp .5s var(--ease) both; }
 .grid > * { animation: fadeInUp .5s var(--ease) both; }
@@ -612,3 +613,10 @@ input:focus, select:focus, textarea:focus { outline: none; border-color: var(--p
   .price { font-size: 15px; }
   .btn { padding: 10px 18px; }
 }
+/* Cart responsive */
+@media (max-width: 800px) {
+  .cart-grid { grid-template-columns: 1fr !important; }
+}
+/* Scrollbar hide for category pills */
+.pill-scroll { scrollbar-width: none; }
+.pill-scroll::-webkit-scrollbar { display: none; }
