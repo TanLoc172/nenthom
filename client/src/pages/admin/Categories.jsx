@@ -4,19 +4,25 @@ import api from '../../api/client.js';
 
 export default function AdminCategories() {
   const [cats, setCats] = useState([]);
-  const [editing, setEditing] = useState(null); // null | {} | category
+  const [editing, setEditing] = useState(null);
+  const [error, setError] = useState('');
   const blank = { name: '', slug: '', parentId: '', description: '', isActive: true };
 
-  const load = () => api.get('/categories/tree?all=true').then((r) => setCats(flatten(r.data)));
+  const load = async () => {
+    try { const r = await api.get('/categories/tree?all=true'); setCats(flatten(r.data)); } catch { /* ignore */ }
+  };
   useEffect(() => { load(); }, []);
 
   const save = async (e) => {
     e.preventDefault();
-    const body = { ...editing, parentId: editing.parentId || null };
-    if (editing._id) await api.put(`/admin/categories/${editing._id}`, body);
-    else await api.post('/admin/categories', body);
-    setEditing(null);
-    load();
+    setError('');
+    try {
+      const body = { ...editing, parentId: editing.parentId || null };
+      if (editing._id) await api.put(`/admin/categories/${editing._id}`, body);
+      else await api.post('/admin/categories', body);
+      setEditing(null);
+      load();
+    } catch (err) { setError(err.message); }
   };
   const remove = async (id) => {
     if (!confirm('Xoá danh mục?')) return;
@@ -48,9 +54,10 @@ export default function AdminCategories() {
           </div>
           <div className="field"><label>Mô tả</label><input value={editing.description || ''} onChange={(e) => setEditing({ ...editing, description: e.target.value })} /></div>
           <label><input type="checkbox" checked={editing.isActive} onChange={(e) => setEditing({ ...editing, isActive: e.target.checked })} /> Hiển thị</label>
+          {error && <p className="error" style={{ margin: '8px 0 0' }}>{error}</p>}
           <div style={{ marginTop: 12 }}>
             <button className="btn">Lưu</button>
-            <button type="button" className="btn btn-outline" style={{ marginLeft: 8 }} onClick={() => setEditing(null)}>Huỷ</button>
+            <button type="button" className="btn btn-outline" style={{ marginLeft: 8 }} onClick={() => { setEditing(null); setError(''); }}>Huỷ</button>
           </div>
         </form></div>
       )}

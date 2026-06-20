@@ -8,18 +8,27 @@ const blank = { title: '', subtitle: '', mediaType: 'image', imageUrl: '', linkU
 export default function AdminBanners() {
   const [items, setItems] = useState([]);
   const [editing, setEditing] = useState(null);
+  const [error, setError] = useState('');
 
-  const load = () => api.get('/admin/banners').then((r) => setItems(r.data));
+  const load = async () => {
+    try { const r = await api.get('/admin/banners'); setItems(r.data); } catch { /* ignore */ }
+  };
   useEffect(() => { load(); }, []);
 
   const save = async (e) => {
     e.preventDefault();
-    const body = { ...editing, displayOrder: Number(editing.displayOrder) };
-    if (editing._id) await api.put(`/admin/banners/${editing._id}`, body);
-    else await api.post('/admin/banners', body);
-    setEditing(null); load();
+    setError('');
+    try {
+      const body = { ...editing, displayOrder: Number(editing.displayOrder) };
+      if (editing._id) await api.put(`/admin/banners/${editing._id}`, body);
+      else await api.post('/admin/banners', body);
+      setEditing(null); load();
+    } catch (err) { setError(err.message); }
   };
-  const remove = async (id) => { if (confirm('Xoá banner?')) { await api.delete(`/admin/banners/${id}`); load(); } };
+  const remove = async (id) => {
+    if (!confirm('Xoá banner?')) return;
+    try { await api.delete(`/admin/banners/${id}`); load(); } catch (err) { alert(err.message); }
+  };
 
   return (
     <div>
@@ -45,7 +54,8 @@ export default function AdminBanners() {
             <div className="field" style={{ flex: 1 }}><label>Thứ tự</label><input type="number" value={editing.displayOrder} onChange={(e) => setEditing({ ...editing, displayOrder: e.target.value })} /></div>
           </div>
           <label><input type="checkbox" checked={editing.isActive} onChange={(e) => setEditing({ ...editing, isActive: e.target.checked })} /> Hiển thị</label>
-          <div style={{ marginTop: 12 }}><button className="btn">Lưu</button><button type="button" className="btn btn-outline" style={{ marginLeft: 8 }} onClick={() => setEditing(null)}>Huỷ</button></div>
+              {error && <p className="error" style={{ margin: '8px 0 0' }}>{error}</p>}
+          <div style={{ marginTop: 12 }}><button className="btn">Lưu</button><button type="button" className="btn btn-outline" style={{ marginLeft: 8 }} onClick={() => { setEditing(null); setError(''); }}>Huỷ</button></div>
         </form>
       )}
 

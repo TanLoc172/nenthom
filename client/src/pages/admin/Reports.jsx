@@ -43,8 +43,9 @@ export default function AdminReports() {
             <div className="stat"><div className="v">{data.totalOrders}</div><div className="l">Tổng đơn</div></div>
           </div>
 
-          <div className="card" style={{ marginBottom: 24 }}>
-            <h3>Biểu đồ doanh thu</h3>
+          <div className="acard" style={{ marginBottom: 24 }}>
+            <div className="acard-header">Biểu đồ doanh thu</div>
+            <div className="acard-body">
             <div style={{ display: 'flex', alignItems: 'flex-end', gap: 4, height: 200, overflowX: 'auto' }}>
               {data.data.map((d) => (
                 <div key={d.label} title={`${d.label}: ${formatVnd(d.revenue)}`} style={{ flex: '1 0 24px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-end', height: '100%' }}>
@@ -53,9 +54,10 @@ export default function AdminReports() {
                 </div>
               ))}
             </div>
+            </div>
           </div>
 
-          <h3>Top sản phẩm bán chạy</h3>
+          <div className="acard"><div className="acard-header">Top sản phẩm bán chạy</div><div className="acard-body p0">
           <table className="table">
             <thead><tr><th>Sản phẩm</th><th>Số lượng</th><th>Doanh thu</th></tr></thead>
             <tbody>
@@ -63,7 +65,7 @@ export default function AdminReports() {
                 <tr key={p.name}><td>{p.name}</td><td>{p.quantity}</td><td>{formatVnd(p.revenue)}</td></tr>
               ))}
             </tbody>
-          </table>
+          </table></div></div>
         </>
       )}
     </div>

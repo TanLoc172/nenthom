@@ -8,15 +8,18 @@ export default function AdminUsers() {
   const [q, setQ] = useState('');
   const [page, setPage] = useState(1);
 
-  const load = () => api.get('/admin/users', { params: { q, page } }).then((r) => setData(r.data));
+  const load = (overrides = {}) => {
+    const p = { q, page, ...overrides };
+    return api.get('/admin/users', { params: p }).then((r) => setData(r.data)).catch(() => {});
+  };
   useEffect(() => { load(); /* eslint-disable-next-line */ }, [page]);
 
   const toggleAdmin = async (u) => {
     const roles = u.roles.includes('admin') ? u.roles.filter((r) => r !== 'admin') : [...u.roles, 'admin'];
-    await api.put(`/admin/users/${u._id}`, { roles, status: u.status }); load();
+    try { await api.put(`/admin/users/${u._id}`, { roles, status: u.status }); load(); } catch (err) { alert(err.message); }
   };
   const toggleStatus = async (u) => {
-    await api.put(`/admin/users/${u._id}`, { roles: u.roles, status: u.status === 'active' ? 'banned' : 'active' }); load();
+    try { await api.put(`/admin/users/${u._id}`, { roles: u.roles, status: u.status === 'active' ? 'banned' : 'active' }); load(); } catch (err) { alert(err.message); }
   };
   const name = (u) => [u.profile?.firstName, u.profile?.lastName].filter(Boolean).join(' ') || u.email.split('@')[0];
 
@@ -32,8 +35,8 @@ export default function AdminUsers() {
 
       <div className="acard"><div className="acard-body">
         <div className="row" style={{ alignItems: 'center' }}>
-          <input placeholder="Tìm email…" value={q} onChange={(e) => setQ(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && (setPage(1), load())} style={{ width: 260 }} />
-          <button className="btn btn-sm" onClick={() => { setPage(1); load(); }}>Tìm</button>
+          <input placeholder="Tìm email…" value={q} onChange={(e) => setQ(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && (setPage(1), load({ q: e.target.value, page: 1 }))} style={{ width: 260 }} />
+          <button className="btn btn-sm" onClick={() => { setPage(1); load({ page: 1 }); }}>Tìm</button>
         </div>
       </div></div>
 

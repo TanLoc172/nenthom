@@ -17,13 +17,16 @@ export default function ProductDetail() {
   const [reviews, setReviews] = useState({ reviews: [], average: 0, count: 0 });
   const [added, setAdded] = useState(false);
 
+  const loadReviews = (productId) =>
+    api.get(`/products/${productId}/reviews`).then((rr) => setReviews(rr.data)).catch(() => {});
+
   useEffect(() => {
     setData(null);
     api.get(`/products/${slug}`).then((r) => {
       setData(r.data);
       setVariant(r.data.product.variants?.[0] || null);
-      api.get(`/products/${r.data.product._id}/reviews`).then((rr) => setReviews(rr.data)).catch(() => {});
-    });
+      loadReviews(r.data.product._id);
+    }).catch(() => {});
   }, [slug]);
 
   useSeo(data ? {
@@ -46,7 +49,9 @@ export default function ProductDetail() {
     <div>
       <div className="detail">
         <div>
-          <img src={variant?.images?.[0] || product.images?.[0]} alt={product.name} />
+          {(variant?.images?.[0] || product.images?.[0])
+            ? <img src={variant?.images?.[0] || product.images?.[0]} alt={product.name} />
+            : <div style={{ width: '100%', aspectRatio: '1/1', background: 'linear-gradient(135deg,#f0e6d3,#d4b896)', borderRadius: 12 }} />}
         </div>
         <div>
           <h1>{product.name}</h1>
@@ -83,7 +88,7 @@ export default function ProductDetail() {
 
       <section style={{ marginTop: 40 }}>
         <h2 className="section-title">Đánh giá ({reviews.count}) — ⭐ {reviews.average}</h2>
-        {user && <ReviewForm productId={product._id} onDone={() => {}} />}
+        {user && <ReviewForm productId={product._id} onDone={() => loadReviews(product._id)} />}
         {reviews.reviews.map((rv) => (
           <div key={rv._id} className="card" style={{ marginBottom: 12 }}>
             <strong>{'⭐'.repeat(rv.rating)}</strong> {rv.isVerifiedPurchase && <span className="tag" style={{ position: 'static' }}>Đã mua</span>}
@@ -102,16 +107,21 @@ export default function ProductDetail() {
   );
 }
 
-function ReviewForm({ productId }) {
+function ReviewForm({ productId, onDone }) {
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState('');
   const [done, setDone] = useState(false);
+  const [error, setError] = useState('');
 
   const submit = async (e) => {
     e.preventDefault();
-    await api.post(`/products/${productId}/reviews`, { rating, comment });
-    setDone(true);
-    setComment('');
+    setError('');
+    try {
+      await api.post(`/products/${productId}/reviews`, { rating, comment });
+      setDone(true);
+      setComment('');
+      onDone?.();
+    } catch (err) { setError(err.message); }
   };
 
   if (done) return <p className="muted">Cảm ơn! Đánh giá của bạn đang chờ duyệt.</p>;
@@ -127,6 +137,7 @@ function ReviewForm({ productId }) {
         <label>Nhận xét</label>
         <textarea value={comment} onChange={(e) => setComment(e.target.value)} rows={3} required />
       </div>
+      {error && <p className="error">{error}</p>}
       <button className="btn">Gửi đánh giá</button>
     </form>
   );

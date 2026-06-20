@@ -8,12 +8,15 @@ export default function AdminProducts() {
   const [q, setQ] = useState('');
   const [page, setPage] = useState(1);
 
-  const load = () => api.get('/admin/products', { params: { q, page } }).then((r) => setData(r.data));
+  const load = (overrides = {}) => {
+    const p = { q, page, ...overrides };
+    return api.get('/admin/products', { params: p }).then((r) => setData(r.data)).catch(() => {});
+  };
   useEffect(() => { load(); /* eslint-disable-next-line */ }, [page]);
 
   const remove = async (id) => {
     if (!confirm('Xoá sản phẩm này?')) return;
-    await api.delete(`/admin/products/${id}`); load();
+    try { await api.delete(`/admin/products/${id}`); load(); } catch (err) { alert(err.message); }
   };
 
   const priceRange = (p) => {
@@ -39,8 +42,8 @@ export default function AdminProducts() {
 
       <div className="acard"><div className="acard-body">
         <div className="row" style={{ alignItems: 'center' }}>
-          <input placeholder="Tìm theo tên…" value={q} onChange={(e) => setQ(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && (setPage(1), load())} style={{ width: 260 }} />
-          <button className="btn btn-sm" onClick={() => { setPage(1); load(); }}>Tìm</button>
+          <input placeholder="Tìm theo tên…" value={q} onChange={(e) => setQ(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && (setPage(1), load({ q: e.target.value, page: 1 }))} style={{ width: 260 }} />
+          <button className="btn btn-sm" onClick={() => { setPage(1); load({ page: 1 }); }}>Tìm</button>
           <span className="muted" style={{ marginLeft: 'auto', fontSize: 13 }}>Tổng <strong>{data.total}</strong> sản phẩm</span>
         </div>
       </div></div>

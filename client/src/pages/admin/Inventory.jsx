@@ -8,12 +8,15 @@ export default function AdminInventory() {
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState('all');
 
-  const load = () => api.get('/admin/inventory', { params: { search, status } }).then((r) => setData(r.data));
+  const load = (overrides = {}) => {
+    const p = { search, status, ...overrides };
+    return api.get('/admin/inventory', { params: p }).then((r) => setData(r.data)).catch(() => {});
+  };
   useEffect(() => { load(); /* eslint-disable-next-line */ }, [status]);
 
   const updateStock = async (row, quantity) => {
-    await api.put('/admin/inventory/stock', { productId: row.productId, sku: row.sku, quantity });
-    load();
+    try { await api.put('/admin/inventory/stock', { productId: row.productId, sku: row.sku, quantity }); load(); }
+    catch (err) { alert(err.message); }
   };
   const s = data.stats;
   const low = data.lowThreshold || 5;

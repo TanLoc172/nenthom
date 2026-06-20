@@ -26,10 +26,10 @@ export const listProducts = asyncHandler(async (req, res) => {
     ];
   }
   if (category) {
-    filter.$or = filter.$or || [];
-    filter.$and = [
-      { $or: [{ 'category.slug': category }, { 'category.categoryId': isObjectId(category) ? category : undefined }] },
-    ].filter(Boolean);
+    const catFilter = isObjectId(category)
+      ? { 'category.categoryId': category }
+      : { 'category.slug': category };
+    filter.$and = [...(filter.$and || []), catFilter];
   }
   if (tag) filter.tags = tag;
   if (featured === 'true') filter.isFeatured = true;

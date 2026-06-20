@@ -12,7 +12,10 @@ export default function AdminOrders() {
   const [to, setTo] = useState('');
   const [page, setPage] = useState(1);
 
-  const load = () => api.get('/admin/orders', { params: { status, q, from, to, page } }).then((r) => setData(r.data));
+  const load = (overrides = {}) => {
+    const p = { status, q, from, to, page, ...overrides };
+    return api.get('/admin/orders', { params: p }).then((r) => setData(r.data)).catch(() => {});
+  };
   useEffect(() => { load(); /* eslint-disable-next-line */ }, [status, page]);
 
   const counts = data.statusCounts || {};
@@ -43,8 +46,8 @@ export default function AdminOrders() {
           <input placeholder="Mã đơn, tên, SĐT…" value={q} onChange={(e) => setQ(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && (setPage(1), load())} style={{ width: 220 }} />
           <input type="date" value={from} onChange={(e) => setFrom(e.target.value)} style={{ width: 160 }} />
           <input type="date" value={to} onChange={(e) => setTo(e.target.value)} style={{ width: 160 }} />
-          <button className="btn btn-sm" onClick={() => { setPage(1); load(); }}>Lọc</button>
-          {(q || from || to) && <button className="btn btn-outline btn-sm" onClick={() => { setQ(''); setFrom(''); setTo(''); setPage(1); setTimeout(load); }}>Xóa lọc</button>}
+          <button className="btn btn-sm" onClick={() => { setPage(1); load({ page: 1 }); }}>Lọc</button>
+          {(q || from || to) && <button className="btn btn-outline btn-sm" onClick={() => { setQ(''); setFrom(''); setTo(''); setPage(1); load({ q: '', from: '', to: '', page: 1 }); }}>Xóa lọc</button>}
           <span className="muted" style={{ marginLeft: 'auto', fontSize: 13 }}>Hiển thị <strong>{data.total || 0}</strong> đơn</span>
         </div>
       </div></div>

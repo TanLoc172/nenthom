@@ -8,18 +8,27 @@ const blank = { code: '', discountType: 'fixed_amount', discountValue: 0, minOrd
 export default function AdminCoupons() {
   const [items, setItems] = useState([]);
   const [editing, setEditing] = useState(null);
+  const [error, setError] = useState('');
 
-  const load = () => api.get('/admin/coupons').then((r) => setItems(r.data));
+  const load = async () => {
+    try { const r = await api.get('/admin/coupons'); setItems(r.data); } catch { /* ignore */ }
+  };
   useEffect(() => { load(); }, []);
 
   const save = async (e) => {
     e.preventDefault();
-    const body = { ...editing, discountValue: Number(editing.discountValue), minOrderValue: Number(editing.minOrderValue), maxDiscountAmount: Number(editing.maxDiscountAmount) || null, usageLimit: Number(editing.usageLimit) || null };
-    if (editing._id) await api.put(`/admin/coupons/${editing._id}`, body);
-    else await api.post('/admin/coupons', body);
-    setEditing(null); load();
+    setError('');
+    try {
+      const body = { ...editing, discountValue: Number(editing.discountValue), minOrderValue: Number(editing.minOrderValue), maxDiscountAmount: Number(editing.maxDiscountAmount) || null, usageLimit: Number(editing.usageLimit) || null };
+      if (editing._id) await api.put(`/admin/coupons/${editing._id}`, body);
+      else await api.post('/admin/coupons', body);
+      setEditing(null); load();
+    } catch (err) { setError(err.message); }
   };
-  const remove = async (id) => { if (confirm('Xoá mã?')) { await api.delete(`/admin/coupons/${id}`); load(); } };
+  const remove = async (id) => {
+    if (!confirm('Xoá mã?')) return;
+    try { await api.delete(`/admin/coupons/${id}`); load(); } catch (err) { alert(err.message); }
+  };
 
   const now = new Date();
   const isLive = (c) => c.isActive && (!c.endDate || new Date(c.endDate) >= now) && (!c.startDate || new Date(c.startDate) <= now);
@@ -64,7 +73,8 @@ export default function AdminCoupons() {
               <div className="field" style={{ flex: 1 }}><label>Kết thúc</label><input type="date" value={(editing.endDate || '').slice(0, 10)} onChange={(e) => setEditing({ ...editing, endDate: e.target.value })} /></div>
             </div>
             <label><input type="checkbox" checked={editing.isActive} onChange={(e) => setEditing({ ...editing, isActive: e.target.checked })} /> Kích hoạt</label>
-            <div style={{ marginTop: 12 }}><button className="btn">Lưu</button><button type="button" className="btn btn-outline" style={{ marginLeft: 8 }} onClick={() => setEditing(null)}>Huỷ</button></div>
+            {error && <p className="error" style={{ margin: '8px 0 0' }}>{error}</p>}
+            <div style={{ marginTop: 12 }}><button className="btn">Lưu</button><button type="button" className="btn btn-outline" style={{ marginLeft: 8 }} onClick={() => { setEditing(null); setError(''); }}>Huỷ</button></div>
           </form>
         </div>
       )}

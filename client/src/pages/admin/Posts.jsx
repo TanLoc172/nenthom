@@ -10,17 +10,26 @@ const blank = { title: '', slug: '', excerpt: '', content: '', thumbnailUrl: '',
 export default function AdminPosts() {
   const [items, setItems] = useState([]);
   const [editing, setEditing] = useState(null);
+  const [error, setError] = useState('');
 
-  const load = () => api.get('/admin/posts').then((r) => setItems(r.data));
+  const load = async () => {
+    try { const r = await api.get('/admin/posts'); setItems(r.data); } catch { /* ignore */ }
+  };
   useEffect(() => { load(); }, []);
 
   const save = async (e) => {
     e.preventDefault();
-    if (editing._id) await api.put(`/admin/posts/${editing._id}`, editing);
-    else await api.post('/admin/posts', editing);
-    setEditing(null); load();
+    setError('');
+    try {
+      if (editing._id) await api.put(`/admin/posts/${editing._id}`, editing);
+      else await api.post('/admin/posts', editing);
+      setEditing(null); load();
+    } catch (err) { setError(err.message); }
   };
-  const remove = async (id) => { if (confirm('Xoá bài viết?')) { await api.delete(`/admin/posts/${id}`); load(); } };
+  const remove = async (id) => {
+    if (!confirm('Xoá bài viết?')) return;
+    try { await api.delete(`/admin/posts/${id}`); load(); } catch (err) { alert(err.message); }
+  };
 
   return (
     <div>
@@ -51,7 +60,8 @@ export default function AdminPosts() {
             </div>
           </div>
           <div className="field"><label>Nội dung</label><RichText value={editing.content} onChange={(html) => setEditing({ ...editing, content: html })} /></div>
-          <div><button className="btn">Lưu</button><button type="button" className="btn btn-outline" style={{ marginLeft: 8 }} onClick={() => setEditing(null)}>Huỷ</button></div>
+          {error && <p className="error" style={{ margin: '8px 0 0' }}>{error}</p>}
+          <div><button className="btn">Lưu</button><button type="button" className="btn btn-outline" style={{ marginLeft: 8 }} onClick={() => { setEditing(null); setError(''); }}>Huỷ</button></div>
         </form></div>
       )}
 

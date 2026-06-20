@@ -9,17 +9,26 @@ const blankItem = () => ({ productId: '', productName: '', slug: '', imageUrl: '
 export default function AdminFlashSales() {
   const [items, setItems] = useState([]);
   const [editing, setEditing] = useState(null);
+  const [error, setError] = useState('');
 
-  const load = () => api.get('/admin/flash-sales').then((r) => setItems(r.data));
+  const load = async () => {
+    try { const r = await api.get('/admin/flash-sales'); setItems(r.data); } catch { /* ignore */ }
+  };
   useEffect(() => { load(); }, []);
 
   const save = async (e) => {
     e.preventDefault();
-    if (editing._id) await api.put(`/admin/flash-sales/${editing._id}`, editing);
-    else await api.post('/admin/flash-sales', editing);
-    setEditing(null); load();
+    setError('');
+    try {
+      if (editing._id) await api.put(`/admin/flash-sales/${editing._id}`, editing);
+      else await api.post('/admin/flash-sales', editing);
+      setEditing(null); load();
+    } catch (err) { setError(err.message); }
   };
-  const remove = async (id) => { if (confirm('Xoá flash sale?')) { await api.delete(`/admin/flash-sales/${id}`); load(); } };
+  const remove = async (id) => {
+    if (!confirm('Xoá flash sale?')) return;
+    try { await api.delete(`/admin/flash-sales/${id}`); load(); } catch (err) { alert(err.message); }
+  };
   const setItem = (i, k, v) => {
     const its = [...editing.items];
     its[i] = { ...its[i], [k]: v };
@@ -62,7 +71,8 @@ export default function AdminFlashSales() {
             </tbody>
           </table>
           <button type="button" className="btn btn-outline" onClick={() => setEditing({ ...editing, items: [...editing.items, blankItem()] })}>+ Thêm SP</button>
-          <div style={{ marginTop: 12 }}><button className="btn">Lưu</button><button type="button" className="btn btn-outline" style={{ marginLeft: 8 }} onClick={() => setEditing(null)}>Huỷ</button></div>
+          {error && <p className="error" style={{ margin: '8px 0 0' }}>{error}</p>}
+          <div style={{ marginTop: 12 }}><button className="btn">Lưu</button><button type="button" className="btn btn-outline" style={{ marginLeft: 8 }} onClick={() => { setEditing(null); setError(''); }}>Huỷ</button></div>
         </form>
       )}
 
