@@ -1,8 +1,7 @@
 {
-  "buildCommand": "cd client && npm install && npm run build",
+  "installCommand": "npm install",
+  "buildCommand": "npm run build",
   "outputDirectory": "client/dist",
-  "installCommand": "echo skip",
-  "framework": "vite",
   "env": {
     "VITE_API_URL": "https://nenthom-server-9nghiu52r-tanloc172s-projects.vercel.app/api"
   },
