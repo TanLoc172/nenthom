@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../api/client.js';
+import AuthShell from '../components/AuthShell.jsx';
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState('');
@@ -13,15 +14,14 @@ export default function ForgotPassword() {
   };
 
   return (
-    <div className="card" style={{ maxWidth: 420, margin: '40px auto' }}>
-      <h1>Quên mật khẩu</h1>
-      {msg ? <p className="muted">{msg}</p> : (
-        <form onSubmit={submit}>
-          <div className="field"><label>Email</label><input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required /></div>
-          <button className="btn" style={{ width: '100%' }}>Gửi liên kết đặt lại</button>
+    <AuthShell title="Quên mật khẩu" subtitle="Nhập email để nhận liên kết đặt lại mật khẩu">
+      {msg ? <p style={{ fontSize: 14, color: 'var(--muted)', textAlign: 'center' }}>{msg}</p> : (
+        <form onSubmit={submit} style={{ display: 'grid', gap: 14 }}>
+          <input className="inp" type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+          <button className="btn btn-primary btn-block btn-lg">Gửi liên kết đặt lại</button>
         </form>
       )}
-      <p className="muted" style={{ marginTop: 12 }}><Link to="/login">← Đăng nhập</Link></p>
-    </div>
+      <div style={{ textAlign: 'center', fontSize: 13, marginTop: 20 }}><Link className="tlink" style={{ color: 'var(--wood)', fontWeight: 600 }} to="/login">← Đăng nhập</Link></div>
+    </AuthShell>
   );
 }

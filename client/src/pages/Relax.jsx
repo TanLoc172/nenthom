@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import useSeo from '../utils/useSeo.js';
 
 // "Thư giãn" — a simple guided breathing exercise with a candle-glow animation.
@@ -29,26 +30,31 @@ export default function Relax() {
   const cur = PHASES[phase];
 
   return (
-    <div style={{ textAlign: 'center', padding: '40px 0' }}>
-      <h1 className="section-title">Góc thư giãn</h1>
-      <p className="muted">Thắp một ngọn nến, hít thở theo nhịp và để tâm trí lắng lại.</p>
+    <div>
+      <div className="pagehead"><div className="container">
+        <div className="crumb"><Link className="tlink" to="/">Trang chủ</Link> / <b>Góc thư giãn</b></div>
+        <h1 className="serif">Góc thư giãn</h1>
+        <p className="muted" style={{ fontSize: 14, margin: '8px 0 0' }}>Thắp một ngọn nến, hít thở theo nhịp và để tâm trí lắng lại.</p>
+      </div></div>
 
-      <div style={{ margin: '40px auto', position: 'relative', width: 220, height: 220, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div style={{
-          width: 160, height: 160, borderRadius: '50%',
-          background: 'radial-gradient(circle, #ffd27a, #b5651d)',
-          transform: `scale(${running ? cur.scale : 1})`,
-          transition: `transform ${running ? cur.secs : 1}s ease-in-out`,
-          boxShadow: '0 0 60px 20px rgba(255,180,80,.5)',
-        }} />
-        <div style={{ position: 'absolute', color: '#fff', fontSize: 22, fontWeight: 600 }}>
-          {running ? <>{cur.label}<br /><span style={{ fontSize: 36 }}>{count}</span></> : '🕯️'}
+      <div className="container" style={{ padding: '40px 32px 110px', textAlign: 'center' }}>
+        <div style={{ margin: '20px auto 40px', position: 'relative', width: 240, height: 240, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{
+            width: 170, height: 170, borderRadius: '50%',
+            background: 'radial-gradient(circle, #ffd27a, #b5651d)',
+            transform: `scale(${running ? cur.scale : 1})`,
+            transition: `transform ${running ? cur.secs : 1}s ease-in-out`,
+            boxShadow: '0 0 60px 20px rgba(255,180,80,.5)',
+          }} />
+          <div style={{ position: 'absolute', color: '#fff', fontSize: 22, fontWeight: 600 }}>
+            {running ? <>{cur.label}<br /><span style={{ fontSize: 40 }} className="serif">{count}</span></> : '🕯️'}
+          </div>
         </div>
-      </div>
 
-      <button className="btn" onClick={() => { setRunning(!running); setPhase(0); setCount(PHASES[0].secs); }}>
-        {running ? 'Dừng lại' : 'Bắt đầu'}
-      </button>
+        <button className="btn btn-primary btn-lg" onClick={() => { setRunning(!running); setPhase(0); setCount(PHASES[0].secs); }}>
+          {running ? 'Dừng lại' : 'Bắt đầu'}
+        </button>
+      </div>
     </div>
   );
 }

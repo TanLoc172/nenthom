@@ -1,4 +1,5 @@
-import { useParams, Navigate } from 'react-router-dom';
+import { useState } from 'react';
+import { useParams, Navigate, Link } from 'react-router-dom';
 
 const PAGES = {
   faq: {
@@ -38,16 +39,28 @@ const PAGES = {
 export default function StaticPage() {
   const { slug } = useParams();
   const page = PAGES[slug];
+  const [open, setOpen] = useState(0);
   if (!page) return <Navigate to="/" replace />;
+
   return (
-    <div style={{ maxWidth: 760, margin: '0 auto' }}>
-      <h1 className="section-title">{page.title}</h1>
-      {page.body.map(([q, a]) => (
-        <div className="card" key={q} style={{ marginBottom: 12 }}>
-          <h3 style={{ marginTop: 0 }}>{q}</h3>
-          <p className="muted" style={{ marginBottom: 0 }}>{a}</p>
+    <div>
+      <div className="pagehead"><div className="container">
+        <div className="crumb"><Link className="tlink" to="/">Trang chủ</Link> / <b>{page.title}</b></div>
+        <h1 className="serif">{page.title}</h1>
+      </div></div>
+
+      <div className="container" style={{ padding: '48px 32px 90px', maxWidth: 820 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          {page.body.map(([q, a], k) => (
+            <div key={q} style={{ background: '#fff', border: '1px solid #F0E9DD', borderRadius: 12, overflow: 'hidden' }}>
+              <div onClick={() => setOpen(open === k ? -1 : k)} style={{ padding: '18px 22px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', fontWeight: 600, fontSize: 15 }}>
+                {q}<span style={{ color: 'var(--wood)', fontSize: 22, transform: open === k ? 'rotate(45deg)' : 'none', transition: 'transform .2s' }}>+</span>
+              </div>
+              {open === k && <div style={{ padding: '0 22px 20px', fontSize: 14, lineHeight: 1.7, color: 'var(--muted)' }}>{a}</div>}
+            </div>
+          ))}
         </div>
-      ))}
+      </div>
     </div>
   );
 }

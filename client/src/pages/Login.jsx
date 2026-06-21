@@ -3,6 +3,7 @@ import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useCart } from '../context/CartContext.jsx';
 import api from '../api/client.js';
+import AuthShell from '../components/AuthShell.jsx';
 
 export default function Login() {
   const { login } = useAuth();
@@ -29,27 +30,26 @@ export default function Login() {
   };
 
   return (
-    <div className="card" style={{ maxWidth: 420, margin: '40px auto' }}>
-      <h1>Đăng nhập</h1>
-      {error && <p className="error">{error}</p>}
-      <form onSubmit={submit}>
-        <div className="field"><label>Email</label><input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required /></div>
-        <div className="field"><label>Mật khẩu</label><input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required /></div>
-        <button className="btn" style={{ width: '100%' }}>Đăng nhập</button>
+    <AuthShell title="Đăng nhập" subtitle="Chào mừng bạn trở lại Nến Thơm ABC">
+      <form onSubmit={submit} style={{ display: 'grid', gap: 14 }}>
+        <input className="inp" type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+        <input className="inp" type="password" placeholder="Mật khẩu" value={password} onChange={(e) => setPassword(e.target.value)} required />
+        {error && <div style={{ fontSize: 13, color: '#c0563f' }}>{error}</div>}
+        <div style={{ textAlign: 'right', fontSize: 13 }}><Link className="tlink" style={{ color: 'var(--wood)' }} to="/forgot-password">Quên mật khẩu?</Link></div>
+        <button className="btn btn-primary btn-block btn-lg">Đăng nhập</button>
       </form>
 
       {(providers.google || providers.facebook) && (
-        <div style={{ marginTop: 12 }}>
-          <p className="muted" style={{ textAlign: 'center' }}>hoặc</p>
-          {providers.google && <a className="btn btn-outline" style={{ width: '100%', marginBottom: 8, textAlign: 'center' }} href="/api/auth/google">Đăng nhập với Google</a>}
-          {providers.facebook && <a className="btn btn-outline" style={{ width: '100%', textAlign: 'center' }} href="/api/auth/facebook">Đăng nhập với Facebook</a>}
+        <div style={{ marginTop: 16 }}>
+          <p style={{ textAlign: 'center', fontSize: 13, color: 'var(--muted)', margin: '0 0 12px' }}>hoặc</p>
+          {providers.google && <a className="btn btn-outline btn-block" style={{ marginBottom: 8 }} href="/api/auth/google">Đăng nhập với Google</a>}
+          {providers.facebook && <a className="btn btn-outline btn-block" href="/api/auth/facebook">Đăng nhập với Facebook</a>}
         </div>
       )}
 
-      <p className="muted" style={{ marginTop: 12 }}>
-        <Link to="/forgot-password">Quên mật khẩu?</Link>
-      </p>
-      <p className="muted">Chưa có tài khoản? <Link to="/register">Đăng ký</Link></p>
-    </div>
+      <div style={{ textAlign: 'center', fontSize: 13, color: 'var(--muted)', marginTop: 20 }}>
+        Chưa có tài khoản? <Link className="tlink" style={{ color: 'var(--wood)', fontWeight: 600 }} to="/register">Đăng ký ngay</Link>
+      </div>
+    </AuthShell>
   );
 }

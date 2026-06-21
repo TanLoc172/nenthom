@@ -17,7 +17,7 @@ const GRADS = [
   'radial-gradient(120% 120% at 30% 25%,#f4e7cb,#c9a86f)',
   'radial-gradient(120% 120% at 30% 25%,#d6e3e1,#7f9fa0)',
 ];
-const serif = { fontFamily: "'Playfair Display', 'Cormorant Garamond', Georgia, serif" };
+const serif = { fontFamily: "'Cormorant Garamond', Georgia, 'Times New Roman', serif" };
 const eyebrowSt = { fontSize: 12, letterSpacing: 3, textTransform: 'uppercase', color: C.brown, fontWeight: 600, marginBottom: 12 };
 
 // Fallback dùng khi server chưa có banner
