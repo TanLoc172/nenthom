@@ -95,8 +95,11 @@ export default function Home() {
   return (
     <div className="home" style={{ background: '#fff' }}>
       <Hero banners={d.banners || []} />
+      <PromoStrip />
       <ScentCategories categories={d.categories || []} />
       <Featured products={d.featured?.length ? d.featured : d.newProducts || []} />
+      <PromoBanner />
+      <NewArrivals products={d.newProducts?.length ? d.newProducts : d.featured || []} />
       <Spaces />
       <WhyUs />
       <Reviews items={d.testimonials?.length ? d.testimonials : FALLBACK_REVIEWS} />
@@ -217,6 +220,22 @@ function ScentCategories({ categories }) {
 }
 
 /* ======================================================= */
+/* PROMO STRIP                                             */
+/* ======================================================= */
+function PromoStrip() {
+  const items = ['🚚 Miễn phí ship đơn từ 500.000₫', '🕯️ Sáp đậu nành 100% thiên nhiên', '🎁 Đóng gói quà tặng miễn phí', '⭐ 12.000+ khách hàng tin yêu', '♻️ Thân thiện với môi trường'];
+  return (
+    <div style={{ background: C.ink, color: C.cream, padding: '11px 0', overflow: 'hidden', borderBottom: `1px solid rgba(255,255,255,.08)` }}>
+      <div style={{ display: 'flex', gap: 60, animation: 'marquee 28s linear infinite', whiteSpace: 'nowrap', width: 'max-content' }}>
+        {[...items, ...items].map((t, i) => (
+          <span key={i} style={{ fontSize: 13, fontWeight: 500, letterSpacing: 0.5, opacity: 0.88 }}>{t}</span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ======================================================= */
 /* FEATURED PRODUCTS                                       */
 /* ======================================================= */
 function Featured({ products }) {
@@ -225,11 +244,63 @@ function Featured({ products }) {
     <section style={{ background: C.cream }}>
       <div className="container" style={{ padding: '90px 32px' }}>
         <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: 48, flexWrap: 'wrap', gap: 16 }}>
-          <SectionHead over="Được yêu thích nhất" title="Sản phẩm nổi bật" center={false} mb={46} />
-          <Link to="/products" style={{ fontSize: 14, fontWeight: 600, color: C.brown, borderBottom: `1px solid ${C.brown}`, paddingBottom: 3, whiteSpace: 'nowrap', marginBottom: 48 }}>Xem tất cả →</Link>
+          <SectionHead over="Được yêu thích nhất" title="Sản phẩm nổi bật" center={false} mb={0} />
+          <Link to="/products" style={{ fontSize: 14, fontWeight: 600, color: C.brown, borderBottom: `1px solid ${C.brown}`, paddingBottom: 3, whiteSpace: 'nowrap' }}>Xem tất cả →</Link>
         </div>
-        <div className="home-prod-grid">
-          {products.slice(0, 4).map((p) => <ProductCard key={p._id} p={p} />)}
+        <div className="home-prod-grid" style={{ marginTop: 40 }}>
+          {products.slice(0, 8).map((p) => <ProductCard key={p._id} p={p} />)}
+        </div>
+        <div style={{ textAlign: 'center', marginTop: 44 }}>
+          <Link to="/products" style={{ display: 'inline-block', padding: '14px 44px', background: C.ink, color: C.cream, borderRadius: 50, fontSize: 14, fontWeight: 600, letterSpacing: 0.5, textDecoration: 'none', transition: 'background .25s' }}>Xem toàn bộ sản phẩm</Link>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ======================================================= */
+/* NEW ARRIVALS                                            */
+/* ======================================================= */
+function NewArrivals({ products }) {
+  if (!products.length) return null;
+  return (
+    <section style={{ background: '#fff' }}>
+      <div className="container" style={{ padding: '90px 32px' }}>
+        <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: 48, flexWrap: 'wrap', gap: 16 }}>
+          <SectionHead over="Mới nhất" title="Hàng mới về" center={false} mb={0} />
+          <Link to="/products?sort=newest" style={{ fontSize: 14, fontWeight: 600, color: C.brown, borderBottom: `1px solid ${C.brown}`, paddingBottom: 3, whiteSpace: 'nowrap' }}>Xem tất cả →</Link>
+        </div>
+        <div className="home-prod-grid" style={{ marginTop: 40 }}>
+          {products.slice(0, 8).map((p) => <ProductCard key={p._id} p={p} />)}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ======================================================= */
+/* PROMO BANNER                                            */
+/* ======================================================= */
+function PromoBanner() {
+  const navigate = useNavigate();
+  return (
+    <section style={{ padding: '0 32px 80px' }}>
+      <div className="container">
+        <div style={{ borderRadius: 20, overflow: 'hidden', background: 'linear-gradient(120deg,#2a2018 0%,#5e3e26 55%,#8B6B4A 100%)', padding: '64px 56px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 32, flexWrap: 'wrap' }}>
+          <div style={{ color: C.cream, maxWidth: 520 }}>
+            <div style={{ fontSize: 11, letterSpacing: 3, textTransform: 'uppercase', color: C.gold, fontWeight: 600, marginBottom: 16 }}>Ưu đãi đặc biệt</div>
+            <h2 style={{ ...serif, fontSize: 'clamp(26px,4vw,44px)', fontWeight: 600, margin: '0 0 16px', lineHeight: 1.15 }}>Mua 2 tặng 1 — Bộ sưu tập quà tặng</h2>
+            <p style={{ fontSize: 15, lineHeight: 1.7, color: 'rgba(245,239,230,.78)', margin: '0 0 32px', maxWidth: 420 }}>Chọn bất kỳ 2 sản phẩm và nhận thêm 1 nến mini miễn phí. Đóng gói thủ công, sẵn sàng làm quà.</p>
+            <button onClick={() => navigate('/products')} style={{ padding: '14px 36px', background: C.gold, color: C.ink, border: 'none', borderRadius: 50, fontSize: 14, fontWeight: 700, cursor: 'pointer', letterSpacing: 0.4 }}>Chọn ngay</button>
+          </div>
+          <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
+            {[['2', 'Năm thành lập'], ['12K+', 'Khách hàng'], ['100%', 'Thiên nhiên'], ['500+', 'Đơn hàng/tháng']].map(([num, label]) => (
+              <div key={label} style={{ textAlign: 'center', minWidth: 88 }}>
+                <div style={{ ...serif, fontSize: 36, fontWeight: 700, color: C.gold, lineHeight: 1 }}>{num}</div>
+                <div style={{ fontSize: 11, color: 'rgba(245,239,230,.65)', marginTop: 6, letterSpacing: 0.5 }}>{label}</div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </section>
