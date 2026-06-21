@@ -281,11 +281,14 @@ input:focus, select:focus, textarea:focus { outline: none; border-color: var(--p
   .home-space-grid { grid-template-columns: repeat(2, 1fr); }
   .home-why-grid { grid-template-columns: repeat(2, 1fr); gap: 36px; }
   .home-gallery { grid-template-columns: repeat(3, 1fr); }
+  .home-brand-grid { grid-template-columns: 1fr !important; gap: 40px !important; }
 }
 @media (max-width: 560px) {
   .home-cat-grid { grid-template-columns: repeat(2, 1fr); }
   .home-prod-grid { grid-template-columns: repeat(2, 1fr); gap: 14px; }
   .home-space-grid { grid-template-columns: 1fr; }
+  .home-why-grid { grid-template-columns: 1fr 1fr; }
+  .home-trust-grid { grid-template-columns: repeat(2, 1fr) !important; }
 }
 .home-section { padding: 64px 0; }
 .home-section.cream { background: var(--bg-soft); }
