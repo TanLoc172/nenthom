@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../../api/client.js';
+import ImageUploader from '../../components/ImageUploader.jsx';
 
 export default function AdminCategories() {
   const [cats, setCats] = useState([]);
   const [editing, setEditing] = useState(null);
   const [error, setError] = useState('');
-  const blank = { name: '', slug: '', parentId: '', description: '', isActive: true };
+  const blank = { name: '', slug: '', parentId: '', description: '', imageUrl: '', isActive: true };
 
   const load = async () => {
     try { const r = await api.get('/categories/tree?all=true'); setCats(flatten(r.data)); } catch { /* ignore */ }
@@ -53,6 +54,14 @@ export default function AdminCategories() {
             </select>
           </div>
           <div className="field"><label>Mô tả</label><input value={editing.description || ''} onChange={(e) => setEditing({ ...editing, description: e.target.value })} /></div>
+          <div className="field">
+            <label>Hình ảnh</label>
+            <ImageUploader
+              folder="categories"
+              value={editing.imageUrl ? [editing.imageUrl] : []}
+              onChange={(urls) => setEditing({ ...editing, imageUrl: urls[urls.length - 1] || '' })}
+            />
+          </div>
           <label><input type="checkbox" checked={editing.isActive} onChange={(e) => setEditing({ ...editing, isActive: e.target.checked })} /> Hiển thị</label>
           {error && <p className="error" style={{ margin: '8px 0 0' }}>{error}</p>}
           <div style={{ marginTop: 12 }}>
@@ -64,10 +73,15 @@ export default function AdminCategories() {
 
       <div className="acard"><div className="acard-body p0">
         <table className="table">
-          <thead><tr><th>Tên</th><th>Slug</th><th style={{ textAlign: 'center' }}>Trạng thái</th><th></th></tr></thead>
+          <thead><tr><th>Ảnh</th><th>Tên</th><th>Slug</th><th style={{ textAlign: 'center' }}>Trạng thái</th><th></th></tr></thead>
           <tbody>
             {cats.map((c) => (
               <tr key={c._id}>
+                <td style={{ width: 52 }}>
+                  {c.imageUrl
+                    ? <img src={c.imageUrl} alt={c.name} style={{ width: 44, height: 44, objectFit: 'cover', borderRadius: 8, border: '1px solid var(--border)' }} />
+                    : <div style={{ width: 44, height: 44, borderRadius: 8, background: 'var(--bg-soft)', border: '1px solid var(--border)' }} />}
+                </td>
                 <td style={{ fontWeight: 600 }}>{c.name}</td>
                 <td className="muted" style={{ fontFamily: 'monospace', fontSize: 13 }}>{c.slug}</td>
                 <td style={{ textAlign: 'center' }}><span className={`badge-status ${c.isActive ? 'st-delivered' : 'st-cancelled'}`}>{c.isActive ? 'Hiển thị' : 'Ẩn'}</span></td>
