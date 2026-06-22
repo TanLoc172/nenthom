@@ -1,9 +1,11 @@
 import { useEffect, useState, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import api from '../api/client.js';
 import useSeo from '../utils/useSeo.js';
 import { useCart } from '../context/CartContext.jsx';
 import { formatVnd } from '../utils/format.js';
+import { FadeUp, StaggerList, StaggerItem, MotionBtn } from '../components/Motion.jsx';
 
 /* ── Tokens ── */
 const T = {
@@ -196,19 +198,23 @@ function Categories({ categories }) {
   return (
     <section style={{ padding: '80px 0' }}>
       <div className="container">
-        <SectionHead eyebrow="Khám phá" title="Danh mục mùi hương" />
-        <div className="home-cat-grid" style={{ marginTop: 44 }}>
+        <FadeUp><SectionHead eyebrow="Khám phá" title="Danh mục mùi hương" /></FadeUp>
+        <StaggerList className="home-cat-grid" style={{ marginTop: 44 }}>
           {categories.slice(0, 6).map((c, i) => (
-            <Link key={c._id} to={`/category/${c.slug}`} className="cat-link" style={{ textAlign: 'center', display: 'block' }}>
-              <div className="cat-circle" style={{ background: c.imageUrl ? undefined : GRADS[i % GRADS.length] }}>
-                {c.imageUrl && <img src={c.imageUrl} alt={c.name} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />}
-                <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg,transparent 40%,rgba(30,20,10,.35) 100%)' }} />
-              </div>
-              <div style={{ ...T.serif, fontSize: 20, fontWeight: 600, color: T.ink, marginTop: 12 }}>{c.name}</div>
-              <div style={{ fontSize: 12, color: T.muted, marginTop: 2, letterSpacing: .5 }}>Xem bộ sưu tập →</div>
-            </Link>
+            <StaggerItem key={c._id}>
+              <motion.div whileHover={{ y: -6 }} transition={{ type: 'spring', stiffness: 300, damping: 18 }}>
+                <Link to={`/category/${c.slug}`} className="cat-link" style={{ textAlign: 'center', display: 'block' }}>
+                  <div className="cat-circle" style={{ background: c.imageUrl ? undefined : GRADS[i % GRADS.length] }}>
+                    {c.imageUrl && <img src={c.imageUrl} alt={c.name} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />}
+                    <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg,transparent 40%,rgba(30,20,10,.35) 100%)' }} />
+                  </div>
+                  <div style={{ ...T.serif, fontSize: 20, fontWeight: 600, color: T.ink, marginTop: 12 }}>{c.name}</div>
+                  <div style={{ fontSize: 12, color: T.muted, marginTop: 2, letterSpacing: .5 }}>Xem bộ sưu tập →</div>
+                </Link>
+              </motion.div>
+            </StaggerItem>
           ))}
-        </div>
+        </StaggerList>
       </div>
     </section>
   );
@@ -227,9 +233,9 @@ function Products({ title, eyebrow, products, bg = '#fff', count = 8 }) {
           <SectionHead eyebrow={eyebrow} title={title} align="left" mb={0} />
           <Link to="/products" style={{ fontSize: 13, fontWeight: 700, color: T.brown, borderBottom: `1.5px solid ${T.brown}`, paddingBottom: 2, whiteSpace: 'nowrap', letterSpacing: .3 }}>Xem tất cả →</Link>
         </div>
-        <div className="home-prod-grid">
-          {shown.map(p => <PCard key={p._id} p={p} />)}
-        </div>
+        <StaggerList className="home-prod-grid">
+          {shown.map(p => <StaggerItem key={p._id}><PCard p={p} /></StaggerItem>)}
+        </StaggerList>
         {products.length > count && (
           <div style={{ textAlign: 'center', marginTop: 48 }}>
             <Link to="/products" style={{ display: 'inline-block', padding: '14px 48px', background: T.ink, color: T.cream, borderRadius: 50, fontSize: 14, fontWeight: 600, letterSpacing: .4, textDecoration: 'none' }}>
@@ -268,6 +274,7 @@ function PCard({ p }) {
   const handleWish = (e) => { e.preventDefault(); e.stopPropagation(); setWished(w => !w); };
 
   return (
+    <motion.div whileHover={{ y: -5, boxShadow: '0 20px 50px rgba(43,44,44,.13)' }} transition={{ type: 'spring', stiffness: 280, damping: 20 }} style={{ borderRadius: 18 }}>
     <Link to={`/products/${p.slug}`} className="pcard-link home-card">
       {/* Ảnh */}
       <div style={{ position: 'relative', padding: 10 }}>
@@ -303,6 +310,7 @@ function PCard({ p }) {
         </div>
       </div>
     </Link>
+    </motion.div>
   );
 }
 
