@@ -53,12 +53,15 @@ async function run() {
     console.log(`[seed] ${customers.length} customers (mật khẩu: Customer@123)`);
   }
 
-  // 2) Categories
-  let categories = await Category.find();
-  if (categories.length === 0) {
-    categories = await Category.insertMany(CATEGORIES);
-    console.log(`[seed] ${categories.length} categories`);
+  // 2) Categories — upsert để giữ imageUrl đã upload
+  const existingCats = await Category.find();
+  const existingCatMap = Object.fromEntries(existingCats.map((c) => [c.slug, c]));
+  const catsToInsert = CATEGORIES.filter((c) => !existingCatMap[c.slug]);
+  if (catsToInsert.length) {
+    await Category.insertMany(catsToInsert);
+    console.log(`[seed] ${catsToInsert.length} categories (mới)`);
   }
+  let categories = await Category.find();
   const catBySlug = Object.fromEntries(categories.map((c) => [c.slug, c]));
 
   // 3) Products
@@ -87,12 +90,18 @@ async function run() {
     console.log(`[seed] ${reviews.length} reviews`);
   }
 
-  // 6) Blog posts (skip existing slugs)
+  // 6) Blog posts — insert mới + cập nhật thumbnailUrl nếu thiếu
   const existingSlugs = new Set((await Post.find({}, 'slug')).map((p) => p.slug));
   const newPosts = POSTS.filter((p) => !existingSlugs.has(p.slug)).map((p) => ({ ...p, publishedAt: new Date() }));
   if (newPosts.length) {
     await Post.insertMany(newPosts);
-    console.log(`[seed] ${newPosts.length} blog posts`);
+    console.log(`[seed] ${newPosts.length} blog posts (mới)`);
+  }
+  // Cập nhật thumbnailUrl cho posts đã có nếu chưa có ảnh
+  for (const p of POSTS) {
+    if (p.thumbnailUrl) {
+      await Post.updateOne({ slug: p.slug, $or: [{ thumbnailUrl: null }, { thumbnailUrl: '' }, { thumbnailUrl: { $exists: false } }] }, { $set: { thumbnailUrl: p.thumbnailUrl } });
+    }
   }
 
   // 7) Flash sale (đang diễn ra)

@@ -99,9 +99,9 @@ export default function Home() {
       <Hero banners={d.banners || []} />
       <TrustBar />
       {(d.categories || []).length > 0 && <Categories categories={d.categories} />}
-      <Products title="Sản phẩm nổi bật" eyebrow="Được yêu thích nhất" products={featured} bg={T.soft} count={8} />
+      <ProductTabs featured={featured} newArrivals={newArrivals} />
+      {d.flashSale && <FlashSale sale={d.flashSale} />}
       <BrandBanner />
-      <Products title="Hàng mới về" eyebrow="Mới nhất" products={newArrivals} bg="#fff" count={8} />
       <Spaces />
       <WhyUs />
       <Reviews items={d.testimonials?.length ? d.testimonials : FALLBACK_REVIEWS} />
@@ -223,26 +223,57 @@ function Categories({ categories }) {
 /* ══════════════════════════════════════════════════
    PRODUCTS SECTION (dùng lại cho 2 section)
 ══════════════════════════════════════════════════ */
-function Products({ title, eyebrow, products, bg = '#fff', count = 8 }) {
-  if (!products.length) return null;
-  const shown = products.slice(0, count);
+const TABS = [
+  { key: 'featured',    label: 'Nổi bật',    eyebrow: 'Được yêu thích nhất' },
+  { key: 'newArrivals', label: 'Hàng mới về', eyebrow: 'Mới nhất'           },
+];
+
+function ProductTabs({ featured, newArrivals }) {
+  const [active, setActive] = useState('featured');
+  const lists = { featured, newArrivals };
+  const products = lists[active] || [];
+
   return (
-    <section style={{ background: bg, padding: '80px 0' }}>
+    <section style={{ background: T.soft, padding: '80px 0' }}>
       <div className="container">
-        <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: 44, flexWrap: 'wrap', gap: 16 }}>
-          <SectionHead eyebrow={eyebrow} title={title} align="left" mb={0} />
+        {/* Header row */}
+        <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16, marginBottom: 44 }}>
+          {/* Tabs */}
+          <div>
+            <h2 style={{ ...T.serif, fontSize: 'clamp(38px,5vw,64px)', fontWeight: 600, color: T.ink, margin: '0 0 4px', lineHeight: 1.05 }}>Khám phá</h2>
+            <p style={{ fontSize: 11, letterSpacing: 2.5, textTransform: 'uppercase', color: T.brown, marginBottom: 14, fontWeight: 600 }}>Sản phẩm</p>
+            <div style={{ display: 'flex', gap: 4, background: T.border, borderRadius: 12, padding: 4 }}>
+              {TABS.map(t => (
+                <button key={t.key} onClick={() => setActive(t.key)}
+                  style={{
+                    padding: '8px 24px', borderRadius: 9, border: 'none', cursor: 'pointer', fontSize: 14, fontWeight: 600,
+                    background: active === t.key ? '#fff' : 'transparent',
+                    color: active === t.key ? T.ink : T.muted,
+                    boxShadow: active === t.key ? '0 2px 8px rgba(43,44,44,.1)' : 'none',
+                    transition: 'all .2s',
+                  }}>
+                  {t.label}
+                </button>
+              ))}
+            </div>
+          </div>
           <Link to="/products" style={{ fontSize: 13, fontWeight: 700, color: T.brown, borderBottom: `1.5px solid ${T.brown}`, paddingBottom: 2, whiteSpace: 'nowrap', letterSpacing: .3 }}>Xem tất cả →</Link>
         </div>
-        <StaggerList className="home-prod-grid">
-          {shown.map(p => <StaggerItem key={p._id}><PCard p={p} /></StaggerItem>)}
+
+        {/* Grid */}
+        <StaggerList key={active} className="home-prod-grid">
+          {products.slice(0, 8).map(p => <StaggerItem key={p._id}><PCard p={p} /></StaggerItem>)}
         </StaggerList>
-        {products.length > count && (
-          <div style={{ textAlign: 'center', marginTop: 48 }}>
-            <Link to="/products" style={{ display: 'inline-block', padding: '14px 48px', background: T.ink, color: T.cream, borderRadius: 50, fontSize: 14, fontWeight: 600, letterSpacing: .4, textDecoration: 'none' }}>
-              Xem thêm sản phẩm
-            </Link>
-          </div>
+
+        {products.length === 0 && (
+          <p style={{ textAlign: 'center', color: T.muted, padding: '48px 0' }}>Chưa có sản phẩm.</p>
         )}
+
+        <div style={{ textAlign: 'center', marginTop: 48 }}>
+          <Link to="/products" style={{ display: 'inline-block', padding: '14px 48px', background: T.ink, color: T.cream, borderRadius: 50, fontSize: 14, fontWeight: 600, letterSpacing: .4, textDecoration: 'none' }}>
+            Xem thêm sản phẩm
+          </Link>
+        </div>
       </div>
     </section>
   );
@@ -311,6 +342,132 @@ function PCard({ p }) {
       </div>
     </Link>
     </motion.div>
+  );
+}
+
+/* ══════════════════════════════════════════════════
+   FLASH SALE
+══════════════════════════════════════════════════ */
+function useCountdown(endTime) {
+  const calc = () => {
+    const diff = Math.max(0, new Date(endTime) - Date.now());
+    return {
+      h: String(Math.floor(diff / 3600000)).padStart(2, '0'),
+      m: String(Math.floor((diff % 3600000) / 60000)).padStart(2, '0'),
+      s: String(Math.floor((diff % 60000) / 1000)).padStart(2, '0'),
+      done: diff === 0,
+    };
+  };
+  const [t, setT] = useState(calc);
+  useEffect(() => {
+    const id = setInterval(() => setT(calc()), 1000);
+    return () => clearInterval(id);
+  }, [endTime]);
+  return t;
+}
+
+function FlashSale({ sale }) {
+  const { h, m, s, done } = useCountdown(sale.endTime);
+  const { addItem } = useCart();
+  const [added, setAdded] = useState({});
+  if (done || !sale.items?.length) return null;
+
+  const handleAdd = async (e, it) => {
+    e.preventDefault();
+    try {
+      const r = await api.get(`/products/${it.slug}`);
+      const v = r.data?.variants?.[0];
+      if (!v) return;
+      await addItem(it.productId, v.sku, 1);
+      setAdded(a => ({ ...a, [it.productId]: true }));
+      setTimeout(() => setAdded(a => ({ ...a, [it.productId]: false })), 1400);
+    } catch { }
+  };
+
+  const TimeBox = ({ val, label }) => (
+    <div style={{ textAlign: 'center' }}>
+      <div style={{ background: T.ink, color: T.cream, borderRadius: 8, padding: '6px 13px', fontSize: 26, fontWeight: 800, fontFamily: 'monospace', lineHeight: 1, minWidth: 50 }}>{val}</div>
+      <div style={{ fontSize: 10, marginTop: 5, letterSpacing: 1, color: T.muted, textTransform: 'uppercase' }}>{label}</div>
+    </div>
+  );
+
+  return (
+    <section style={{ background: T.cream, padding: '80px 0', borderTop: `1px solid ${T.border}`, borderBottom: `1px solid ${T.border}`, position: 'relative', overflow: 'hidden' }}>
+      {/* subtle warm texture */}
+      <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(ellipse 60% 50% at 50% 0%,rgba(220,197,161,.35) 0%,transparent 70%)', pointerEvents: 'none' }} />
+
+      <div className="container" style={{ position: 'relative' }}>
+        <FadeUp>
+          <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 24, marginBottom: 52 }}>
+            {/* Title */}
+            <div>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: '#b84c35', color: '#fff', fontSize: 10, fontWeight: 800, letterSpacing: 2, textTransform: 'uppercase', padding: '4px 12px', borderRadius: 20, marginBottom: 14 }}>
+                ⚡ Flash Sale
+              </div>
+              <h2 style={{ ...T.serif, fontSize: 'clamp(26px,3vw,42px)', fontWeight: 600, color: T.ink, margin: 0, lineHeight: 1.15 }}>{sale.name}</h2>
+              {sale.description && <p style={{ fontSize: 14, color: T.muted, marginTop: 8, maxWidth: 400 }}>{sale.description}</p>}
+            </div>
+            {/* Countdown */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <span style={{ fontSize: 13, color: T.muted, marginRight: 4 }}>Kết thúc sau</span>
+              <TimeBox val={h} label="giờ" />
+              <span style={{ fontSize: 22, fontWeight: 700, color: T.gold, marginBottom: 18 }}>:</span>
+              <TimeBox val={m} label="phút" />
+              <span style={{ fontSize: 22, fontWeight: 700, color: T.gold, marginBottom: 18 }}>:</span>
+              <TimeBox val={s} label="giây" />
+            </div>
+          </div>
+        </FadeUp>
+
+        <StaggerList style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(196px,1fr))', gap: 18 }}>
+          {sale.items.slice(0, 5).map((it) => {
+            const pct = it.originalPrice > 0 ? Math.round((1 - it.salePrice / it.originalPrice) * 100) : 0;
+            const sold = it.soldCount || 0;
+            const total = it.saleQuantity || 1;
+            const soldPct = Math.min(100, Math.round(sold / total * 100));
+            return (
+              <StaggerItem key={it.productId}>
+                <Link to={`/products/${it.slug}`} style={{ display: 'block', background: '#fff', borderRadius: 14, overflow: 'hidden', border: `1px solid ${T.border}`, boxShadow: '0 2px 10px rgba(139,107,74,.07)', transition: 'transform .3s,box-shadow .3s', textDecoration: 'none' }}
+                  onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-5px)'; e.currentTarget.style.boxShadow = '0 14px 36px rgba(139,107,74,.18)'; }}
+                  onMouseLeave={e => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = '0 2px 10px rgba(139,107,74,.07)'; }}
+                >
+                  {/* Ảnh */}
+                  <div style={{ position: 'relative', aspectRatio: '1/1', background: T.soft, overflow: 'hidden' }}>
+                    {it.imageUrl
+                      ? <img src={it.imageUrl} alt={it.productName} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      : <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 40 }}>🕯️</div>}
+                    {pct > 0 && (
+                      <span style={{ position: 'absolute', top: 10, left: 10, background: '#b84c35', color: '#fff', fontSize: 12, fontWeight: 800, padding: '3px 9px', borderRadius: 6 }}>-{pct}%</span>
+                    )}
+                  </div>
+                  {/* Info */}
+                  <div style={{ padding: '14px 14px 16px' }}>
+                    <div style={{ fontSize: 13, fontWeight: 600, color: T.ink, marginBottom: 8, lineHeight: 1.35 }}>{it.productName}</div>
+                    <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginBottom: 10 }}>
+                      <span style={{ fontSize: 17, fontWeight: 800, color: '#b84c35' }}>{formatVnd(it.salePrice)}</span>
+                      {it.originalPrice > it.salePrice && (
+                        <span style={{ fontSize: 12, color: T.muted, textDecoration: 'line-through' }}>{formatVnd(it.originalPrice)}</span>
+                      )}
+                    </div>
+                    {/* Progress */}
+                    <div style={{ marginBottom: 12 }}>
+                      <div style={{ height: 4, background: T.border, borderRadius: 99, overflow: 'hidden' }}>
+                        <div style={{ height: '100%', width: `${soldPct}%`, background: `linear-gradient(90deg,${T.goldY},#b84c35)`, borderRadius: 99, transition: 'width 1s' }} />
+                      </div>
+                      <div style={{ fontSize: 11, color: T.muted, marginTop: 5 }}>Đã bán {sold}/{total}</div>
+                    </div>
+                    <button onClick={(e) => handleAdd(e, it)}
+                      style={{ width: '100%', padding: '9px 0', borderRadius: 8, border: `1.5px solid ${added[it.productId] ? T.brown : T.ink}`, background: added[it.productId] ? T.brown : T.ink, color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer', transition: 'all .2s', letterSpacing: .5 }}>
+                      {added[it.productId] ? '✓ Đã thêm' : 'Thêm vào giỏ'}
+                    </button>
+                  </div>
+                </Link>
+              </StaggerItem>
+            );
+          })}
+        </StaggerList>
+      </div>
+    </section>
   );
 }
 

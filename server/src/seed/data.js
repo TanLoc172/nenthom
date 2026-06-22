@@ -27,13 +27,42 @@ export const PRODUCT_DEFS = [
   ['Lớp Học Làm Bánh', 'lop-hoc-lam-banh', 'huong-banh-ngot', 'Hương bánh quy bơ', ['Bơ lạt'], ['Bột mì nướng', 'Hạnh nhân'], ['Vanilla', 'Đường mía']],
 ];
 
-const IMG1 = 'https://images.unsplash.com/photo-1603006905003-be475563bc59?w=500&q=80';
-const IMG2 = 'https://images.unsplash.com/photo-1596433809252-260c2746af50?w=500&q=80';
+const PIN = [
+  'https://i.pinimg.com/474x/0a/1b/01/0a1b01dce8e825dd73028ce5e0b87fae.jpg',
+  'https://i.pinimg.com/474x/0a/2d/ec/0a2decdb42da6c7299fda5e9e45a840c.jpg',
+  'https://i.pinimg.com/474x/0b/06/4e/0b064e52271c7ff076e5baec78e6b8c2.jpg',
+  'https://i.pinimg.com/474x/0b/20/8b/0b208be476a74346b98df0e8e476bc5f.jpg',
+  'https://i.pinimg.com/474x/0c/2d/c8/0c2dc81bc1a1c2b3ea9e438c0505013c.jpg',
+  'https://i.pinimg.com/474x/0c/9e/eb/0c9eeb80032422dd4fcb04fd9b61a051.jpg',
+  'https://i.pinimg.com/474x/0c/50/b3/0c50b324d5fed16b38458eeb1b6cb731.jpg',
+  'https://i.pinimg.com/474x/0c/79/a9/0c79a9039fb1e89a3fc6240f17a31097.jpg',
+  'https://i.pinimg.com/474x/0c/82/7e/0c827ec7e78c8f3b796c6c0992208fcb.jpg',
+  'https://i.pinimg.com/474x/0c/82/9c/0c829c77704c591db9cf17dec63af6e2.jpg',
+  'https://i.pinimg.com/474x/0c/66/22/0c6622bb09ef08ae272941680b79b597.jpg',
+];
+
+const PRODUCT_IMAGES = {
+  'da-lat-suong-mu':      [PIN[0],  PIN[1]],
+  'tra-chieu-hoang-gia':  [PIN[2],  PIN[3]],
+  'gio-bien-maldives':    [PIN[4],  PIN[5]],
+  'khu-vuon-mua-xuan':    [PIN[6],  PIN[7]],
+  'tiem-ca-phe-paris':    [PIN[8],  PIN[9]],
+  'go-dan-huong-co-dien': [PIN[10], PIN[0]],
+  'hong-an-rose':         [PIN[1],  PIN[2]],
+  'som-mai-tuoi-mat':     [PIN[3],  PIN[4]],
+  'tao-que-dem-dong':     [PIN[5],  PIN[6]],
+  'lop-hoc-lam-banh':     [PIN[7],  PIN[8]],
+};
 
 export function buildProduct([name, slug, , shortDesc, top, middle, base], cat) {
   const intensity = 3 + Math.floor(Math.random() * 3);
   const woodWick = Math.random() < 0.5;
   const prefix = slug.slice(0, 3).toUpperCase();
+  const imgs = PRODUCT_IMAGES[slug] || [
+    'https://images.unsplash.com/photo-1603006905003-be475563bc59?w=600&q=80',
+    'https://images.unsplash.com/photo-1596433809252-260c2746af50?w=600&q=80',
+    'https://images.unsplash.com/photo-1542621334-a254cf47733d?w=600&q=80',
+  ];
   return {
     name, slug,
     description: `Nến thơm ${name} - Mang lại không gian sống của bạn trải nghiệm ${shortDesc.toLowerCase()} tuyệt vời nhất. Thành phần 100% sáp tự nhiên an toàn cho sức khỏe.`,
@@ -46,12 +75,12 @@ export function buildProduct([name, slug, , shortDesc, top, middle, base], cat) 
       burnTimeHours: 40, origin: 'Việt Nam',
     },
     scentProfile: { scentName: cat.name, intensity, notes: { top, middle, base } },
-    images: [IMG1, IMG2],
+    images: imgs,
     isActive: true,
     isFeatured: Math.random() < 0.5,
     variants: [
-      { sku: `${prefix}-100G`, sizeLabel: '100g', weightGrams: 100, price: 189000, stockQuantity: 50, images: [IMG1], isActive: true },
-      { sku: `${prefix}-200G`, sizeLabel: '200g', weightGrams: 200, price: 349000, compareAtPrice: 380000, stockQuantity: 30, images: [IMG2], isActive: true },
+      { sku: `${prefix}-100G`, sizeLabel: '100g', weightGrams: 100, price: 189000, stockQuantity: 50, images: [imgs[0]], isActive: true },
+      { sku: `${prefix}-200G`, sizeLabel: '200g', weightGrams: 200, price: 349000, compareAtPrice: 380000, stockQuantity: 30, images: [imgs[1]], isActive: true },
     ],
   };
 }
@@ -96,6 +125,7 @@ export const POSTS = [
     category: 'Mẹo hay',
     authorName: 'Nến Thơm ABC',
     status: 'published',
+    thumbnailUrl: 'https://i.pinimg.com/474x/0c/82/9c/0c829c77704c591db9cf17dec63af6e2.jpg',
     content: '<h2>Chọn nến theo không gian</h2><p>Phòng ngủ nên dùng hương lavender, vani dịu nhẹ giúp thư giãn. Phòng khách hợp hương gỗ, trầm ấm tạo cảm giác sang trọng.</p><h3>Kích thước phù hợp</h3><p>Phòng nhỏ dùng nến 100g, phòng lớn nên chọn 200g trở lên để hương lan tỏa đều.</p>',
   },
   {
@@ -105,6 +135,7 @@ export const POSTS = [
     category: 'Mẹo hay',
     authorName: 'Nến Thơm ABC',
     status: 'published',
+    thumbnailUrl: 'https://i.pinimg.com/474x/0c/66/22/0c6622bb09ef08ae272941680b79b597.jpg',
     content: '<h2>Lần đốt đầu tiên rất quan trọng</h2><p>Hãy để nến cháy đủ lâu cho lớp sáp bề mặt tan đều, tránh hiện tượng lõm giữa.</p><h3>Cắt bấc trước mỗi lần đốt</h3><p>Giữ bấc ở mức ~5mm để ngọn lửa ổn định, không bị khói đen.</p>',
   },
   {
@@ -114,6 +145,7 @@ export const POSTS = [
     category: 'Kiến thức',
     authorName: 'Nến Thơm ABC',
     status: 'published',
+    thumbnailUrl: 'https://i.pinimg.com/474x/0a/1b/01/0a1b01dce8e825dd73028ce5e0b87fae.jpg',
     content: '<h2>An toàn cho sức khỏe</h2><p>Sáp đậu nành cháy sạch, ít muội than, thân thiện môi trường và thời gian cháy lâu hơn paraffin.</p>',
   },
 ];
