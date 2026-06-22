@@ -8,10 +8,12 @@ export default function ProductCard({ product }) {
   const { addItem } = useCart();
   const [added, setAdded] = useState(false);
   const [wished, setWished] = useState(false);
+  const [hovered, setHovered] = useState(false);
   const variant = product.variants?.[0];
   const price = variant?.price ?? 0;
   const compare = variant?.compareAtPrice;
   const img = product.images?.[0] || variant?.images?.[0];
+  const img2 = product.images?.[1] || variant?.images?.[1];
   const discount = compare > price ? Math.round((1 - price / compare) * 100) : 0;
   const badge = discount > 0 ? `-${discount}%` : product.isNew ? 'New' : product.isFeatured ? 'Best Seller' : null;
 
@@ -26,10 +28,13 @@ export default function ProductCard({ product }) {
 
   return (
     <Link to={`/products/${product.slug}`} className="pcard">
-      <div className="imgwrap">
+      <div className="imgwrap" onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}>
         <div className="candle" style={{ background: '#ece5da' }}>
           {img
-            ? <img src={img} alt={product.name} loading="lazy" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
+            ? <>
+                <img src={img} alt={product.name} loading="lazy" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', transition: 'opacity .4s ease', opacity: hovered && img2 ? 0 : 1 }} />
+                {img2 && <img src={img2} alt={product.name} loading="lazy" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', transition: 'opacity .4s ease', opacity: hovered ? 1 : 0 }} />}
+              </>
             : <><div className="jar"></div><div className="flame"></div></>}
         </div>
         {badge && <span className="pbadge">{badge}</span>}
