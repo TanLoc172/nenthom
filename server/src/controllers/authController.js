@@ -62,7 +62,7 @@ export const logout = asyncHandler(async (_req, res) => {
 // GET /api/auth/me
 export const me = asyncHandler(async (req, res) => {
   if (!req.user) return res.json({ user: null });
-  const user = await User.findById(req.user._id);
+  const user = await User.findById(req.user.id);
   res.json({ user: user ? publicUser(user) : null });
 });
 

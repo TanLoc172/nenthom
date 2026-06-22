@@ -1,5 +1,4 @@
 import { Router } from 'express';
-import express from 'express';
 import { requireAuth, requireAdmin } from '../middleware/auth.js';
 import { upload } from '../middleware/upload.js';
 import { auditLogger } from '../middleware/audit.js';
@@ -22,17 +21,16 @@ import * as adminx from '../controllers/adminController.js';
 import * as exp from '../controllers/exportController.js';
 import * as uploadCtrl from '../controllers/uploadController.js';
 import * as homeCtrl from '../controllers/homeController.js';
-import { clerkWebhook } from '../controllers/webhookController.js';
 
 const r = Router();
 
 // ---------- Home aggregate ----------
 r.get('/home', homeCtrl.home);
 
-// ---------- Clerk webhook (raw body needed) ----------
-r.post('/webhooks/clerk', express.raw({ type: 'application/json' }), clerkWebhook);
-
-// ---------- Auth (legacy — kept for /auth/me) ----------
+// ---------- Auth ----------
+r.post('/auth/register', auth.register);
+r.post('/auth/login', auth.login);
+r.post('/auth/logout', auth.logout);
 r.get('/auth/me', auth.me);
 r.post('/auth/forgot-password', auth.forgotPassword);
 r.post('/auth/reset-password', auth.resetPassword);
