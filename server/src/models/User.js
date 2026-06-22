@@ -23,6 +23,7 @@ const profileSchema = new mongoose.Schema({
 }, { _id: false });
 
 const userSchema = new mongoose.Schema({
+  clerkId: { type: String, index: true, sparse: true },
   email: { type: String, required: true, index: true },
   passwordHash: { type: String, default: '' },
   phone: String,

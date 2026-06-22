@@ -3,6 +3,7 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { clerkMiddleware } from '@clerk/express';
 
 import { authOptional } from './middleware/auth.js';
 import { pageView } from './middleware/pageView.js';
@@ -27,6 +28,7 @@ app.use(
     credentials: true,
   })
 );
+app.use(clerkMiddleware());
 app.use(express.json({ limit: '5mb' }));
 app.use(cookieParser());
 app.use(authOptional);

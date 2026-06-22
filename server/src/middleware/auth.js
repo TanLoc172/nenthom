@@ -1,30 +1,25 @@
-import jwt from 'jsonwebtoken';
+import { getAuth } from '@clerk/express';
+import User from '../models/User.js';
 
-// Reads JWT from httpOnly cookie "token" or Authorization: Bearer header.
-export function authOptional(req, _res, next) {
-  const token =
-    req.cookies?.token ||
-    (req.headers.authorization?.startsWith('Bearer ')
-      ? req.headers.authorization.slice(7)
-      : null);
-  if (token) {
-    try {
-      req.user = jwt.verify(token, process.env.JWT_SECRET);
-    } catch {
-      req.user = null;
-    }
+// Resolves Clerk userId → MongoDB User, sets req.user
+export async function authOptional(req, _res, next) {
+  const { userId } = getAuth(req);
+  if (userId) {
+    req.user = await User.findOne({ clerkId: userId }).lean();
   }
   next();
 }
 
 export function requireAuth(req, res, next) {
-  if (!req.user) return res.status(401).json({ message: 'Chưa đăng nhập' });
+  const { userId } = getAuth(req);
+  if (!userId || !req.user) return res.status(401).json({ message: 'Chưa đăng nhập' });
   next();
 }
 
 export function requireRole(...roles) {
   return (req, res, next) => {
-    if (!req.user) return res.status(401).json({ message: 'Chưa đăng nhập' });
+    const { userId } = getAuth(req);
+    if (!userId || !req.user) return res.status(401).json({ message: 'Chưa đăng nhập' });
     const userRoles = req.user.roles || [];
     if (!roles.some((r) => userRoles.includes(r)))
       return res.status(403).json({ message: 'Không có quyền truy cập' });
