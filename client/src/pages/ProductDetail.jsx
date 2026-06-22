@@ -177,6 +177,13 @@ export default function ProductDetail() {
         </div>
       </div>
 
+      {/* Bundle Deal */}
+      {related?.length > 0 && (
+        <div className="container" style={{ padding: '0 32px 56px' }}>
+          <BundleDeal main={product} companions={related.slice(0, 2)} addItem={addItem} />
+        </div>
+      )}
+
       {/* Tabs */}
       <div className="container" style={{ padding: '0 32px 70px' }}>
         <div style={{ display: 'flex', gap: 34, borderBottom: '1px solid var(--line)', overflowX: 'auto' }}>
@@ -243,6 +250,140 @@ export default function ProductDetail() {
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+/* ── Bundle Deal ── */
+const BUNDLE_DISCOUNT = 0.1; // 10% off companions
+
+function BundleDeal({ main, companions, addItem }) {
+  const mainV = main.variants?.[0];
+  const mainPrice = mainV?.price ?? 0;
+  const mainImg = main.images?.[0] || mainV?.images?.[0];
+
+  const [selected, setSelected] = useState(() => companions.map(c => c._id));
+  const [adding, setAdding] = useState(false);
+  const [done, setDone] = useState(false);
+
+  const toggle = (id) =>
+    setSelected(s => s.includes(id) ? s.filter(x => x !== id) : [...s, id]);
+
+  const pickedCompanions = companions.filter(c => selected.includes(c._id));
+
+  const companionTotal = pickedCompanions.reduce((sum, c) => {
+    const v = c.variants?.[0];
+    return sum + (v?.price ?? 0);
+  }, 0);
+
+  const originalTotal = mainPrice + companionTotal;
+  const savedAmount   = Math.round(companionTotal * BUNDLE_DISCOUNT);
+  const bundleTotal   = originalTotal - savedAmount;
+  const count = 1 + pickedCompanions.length;
+
+  const handleAddAll = async () => {
+    if (pickedCompanions.length === 0) return;
+    setAdding(true);
+    try {
+      await addItem(main._id, mainV.sku, 1);
+      for (const c of pickedCompanions) {
+        const v = c.variants?.[0];
+        if (v) await addItem(c._id, v.sku, 1);
+      }
+      setDone(true);
+      setTimeout(() => setDone(false), 2000);
+    } catch { }
+    finally { setAdding(false); }
+  };
+
+  if (!mainV) return null;
+
+  const ProductChip = ({ product, isMain, checked, onToggle }) => {
+    const v = product.variants?.[0];
+    const img = product.images?.[0] || v?.images?.[0];
+    const price = v?.price ?? 0;
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '12px 16px', borderRadius: 14, border: `1.5px solid ${checked || isMain ? 'var(--wood)' : 'var(--line2)'}`, background: checked || isMain ? '#FBF6EE' : '#fff', opacity: isMain ? 1 : 1, transition: 'all .18s', cursor: isMain ? 'default' : 'pointer', flex: '1 1 220px' }}
+        onClick={isMain ? undefined : onToggle}
+      >
+        {/* Checkbox / Lock */}
+        {isMain ? (
+          <span style={{ width: 20, height: 20, borderRadius: 6, background: 'var(--wood)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <svg width="11" height="9" viewBox="0 0 11 9" fill="none"><path d="M1 4.5L4 7.5L10 1" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>
+          </span>
+        ) : (
+          <span style={{ width: 20, height: 20, borderRadius: 6, border: `2px solid ${checked ? 'var(--wood)' : '#d4cabc'}`, background: checked ? 'var(--wood)' : '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, transition: 'all .15s' }}>
+            {checked && <svg width="11" height="9" viewBox="0 0 11 9" fill="none"><path d="M1 4.5L4 7.5L10 1" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>}
+          </span>
+        )}
+        {/* Image */}
+        <div style={{ width: 56, height: 56, borderRadius: 10, overflow: 'hidden', background: '#EFE8DC', flexShrink: 0 }}>
+          {img ? <img src={img} alt={product.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24 }}>🕯️</div>}
+        </div>
+        {/* Text */}
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontSize: 13, fontWeight: 600, color: '#2C2C2C', lineHeight: 1.3, marginBottom: 4 }}>{product.name}</div>
+          <div style={{ fontSize: 13, color: 'var(--wood)', fontWeight: 700 }}>{money(price)}</div>
+          {!isMain && (
+            <div style={{ fontSize: 11, color: '#1a7a45', marginTop: 2 }}>Tiết kiệm {Math.round(price * BUNDLE_DISCOUNT).toLocaleString('vi-VN')}₫</div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <div style={{ border: '1.5px solid var(--line2)', borderRadius: 20, overflow: 'hidden' }}>
+      {/* Header */}
+      <div style={{ background: 'linear-gradient(90deg,#8B6B4A 0%,#a07d5a 100%)', padding: '14px 24px', display: 'flex', alignItems: 'center', gap: 12 }}>
+        <span style={{ fontSize: 18 }}>🎁</span>
+        <div>
+          <div style={{ color: '#fff', fontWeight: 700, fontSize: 15, letterSpacing: .2 }}>Đề xuất mua kèm — Giá hời hơn!</div>
+          <div style={{ color: 'rgba(255,255,255,.75)', fontSize: 12, marginTop: 1 }}>Chọn sản phẩm bên dưới để nhận giảm 10% khi mua cùng</div>
+        </div>
+      </div>
+
+      <div style={{ padding: '20px 24px 24px', background: '#fff' }}>
+        {/* Product chips */}
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, marginBottom: 20 }}>
+          <ProductChip product={main} isMain checked />
+          {companions.map(c => (
+            <ProductChip key={c._id} product={c} isMain={false} checked={selected.includes(c._id)} onToggle={() => toggle(c._id)} />
+          ))}
+        </div>
+
+        {/* Divider with arrow summary */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
+          <div style={{ flex: 1, height: 1, background: 'var(--line2)' }} />
+          <span style={{ fontSize: 13, color: '#9b9289', whiteSpace: 'nowrap' }}>
+            {count} sản phẩm được chọn
+          </span>
+          <div style={{ flex: 1, height: 1, background: 'var(--line2)' }} />
+        </div>
+
+        {/* Price summary + CTA */}
+        <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 16 }}>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: 12, marginBottom: 4 }}>
+              <span className="serif" style={{ fontSize: 28, fontWeight: 700, color: 'var(--wood)' }}>{money(bundleTotal)}</span>
+              {savedAmount > 0 && <span style={{ fontSize: 15, color: '#9b9289', textDecoration: 'line-through' }}>{money(originalTotal)}</span>}
+            </div>
+            {savedAmount > 0 ? (
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: '#e8f9ef', border: '1px solid #b7e4c7', borderRadius: 8, padding: '4px 12px', fontSize: 13, color: '#1a7a45', fontWeight: 700 }}>
+                ✓ Tiết kiệm {money(savedAmount)} khi mua kèm
+              </div>
+            ) : (
+              <div style={{ fontSize: 13, color: '#9b9289' }}>Chọn thêm sản phẩm để nhận ưu đãi</div>
+            )}
+          </div>
+          <button
+            onClick={handleAddAll}
+            disabled={adding || pickedCompanions.length === 0}
+            style={{ padding: '13px 32px', borderRadius: 50, border: 'none', background: done ? '#1a7a45' : pickedCompanions.length === 0 ? '#d4cabc' : 'var(--ink)', color: '#fff', fontSize: 14, fontWeight: 700, cursor: pickedCompanions.length === 0 ? 'not-allowed' : 'pointer', transition: 'all .2s', whiteSpace: 'nowrap' }}>
+            {done ? '✓ Đã thêm vào giỏ' : adding ? 'Đang thêm…' : `Thêm ${count} SP vào giỏ`}
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
