@@ -220,130 +220,6 @@ function Categories({ categories }) {
   );
 }
 
-/* ══════════════════════════════════════════════════
-   PRODUCTS SECTION (dùng lại cho 2 section)
-══════════════════════════════════════════════════ */
-const TABS = [
-  { key: 'featured',    label: 'Nổi bật',    eyebrow: 'Được yêu thích nhất' },
-  { key: 'newArrivals', label: 'Hàng mới về', eyebrow: 'Mới nhất'           },
-];
-
-function ProductTabs({ featured, newArrivals }) {
-  const [active, setActive] = useState('featured');
-  const lists = { featured, newArrivals };
-  const products = lists[active] || [];
-
-  return (
-    <section style={{ background: T.soft, padding: '80px 0' }}>
-      <div className="container">
-        {/* Header row */}
-        <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16, marginBottom: 44 }}>
-          {/* Tabs */}
-          <div>
-            <h2 style={{ ...T.serif, fontSize: 'clamp(38px,5vw,64px)', fontWeight: 600, color: T.ink, margin: '0 0 4px', lineHeight: 1.05 }}>Khám phá</h2>
-            <p style={{ fontSize: 11, letterSpacing: 2.5, textTransform: 'uppercase', color: T.brown, marginBottom: 14, fontWeight: 600 }}>Sản phẩm</p>
-            <div style={{ display: 'flex', gap: 4, background: T.border, borderRadius: 12, padding: 4 }}>
-              {TABS.map(t => (
-                <button key={t.key} onClick={() => setActive(t.key)}
-                  style={{
-                    padding: '8px 24px', borderRadius: 9, border: 'none', cursor: 'pointer', fontSize: 14, fontWeight: 600,
-                    background: active === t.key ? '#fff' : 'transparent',
-                    color: active === t.key ? T.ink : T.muted,
-                    boxShadow: active === t.key ? '0 2px 8px rgba(43,44,44,.1)' : 'none',
-                    transition: 'all .2s',
-                  }}>
-                  {t.label}
-                </button>
-              ))}
-            </div>
-          </div>
-          <Link to="/products" style={{ fontSize: 13, fontWeight: 700, color: T.brown, borderBottom: `1.5px solid ${T.brown}`, paddingBottom: 2, whiteSpace: 'nowrap', letterSpacing: .3 }}>Xem tất cả →</Link>
-        </div>
-
-        {/* Grid */}
-        <StaggerList key={active} className="home-prod-grid">
-          {products.slice(0, 8).map(p => <StaggerItem key={p._id}><PCard p={p} /></StaggerItem>)}
-        </StaggerList>
-
-        {products.length === 0 && (
-          <p style={{ textAlign: 'center', color: T.muted, padding: '48px 0' }}>Chưa có sản phẩm.</p>
-        )}
-
-        <div style={{ textAlign: 'center', marginTop: 48 }}>
-          <Link to="/products" style={{ display: 'inline-block', padding: '14px 48px', background: T.ink, color: T.cream, borderRadius: 50, fontSize: 14, fontWeight: 600, letterSpacing: .4, textDecoration: 'none' }}>
-            Xem thêm sản phẩm
-          </Link>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/* ══════════════════════════════════════════════════
-   PRODUCT CARD
-══════════════════════════════════════════════════ */
-function PCard({ p }) {
-  const { addItem } = useCart();
-  const [added, setAdded] = useState(false);
-  const [wished, setWished] = useState(false);
-  const v = p.variants?.[0];
-  const price = v?.price ?? 0;
-  const compare = v?.compareAtPrice;
-  const img = p.images?.[0] || v?.images?.[0];
-  const discount = compare > price ? Math.round((1 - price / compare) * 100) : 0;
-  const gi = gradIdx(p._id);
-  const badge = discount > 0 ? `-${discount}%` : p.isNew ? 'Mới' : p.isFeatured ? 'Hot' : null;
-
-  const handleAdd = async (e) => {
-    e.preventDefault(); e.stopPropagation();
-    if (!v) return;
-    await addItem(p._id, v.sku, 1);
-    setAdded(true);
-    setTimeout(() => setAdded(false), 1400);
-  };
-
-  const handleWish = (e) => { e.preventDefault(); e.stopPropagation(); setWished(w => !w); };
-
-  return (
-    <motion.div whileHover={{ y: -5, boxShadow: '0 20px 50px rgba(43,44,44,.13)' }} transition={{ type: 'spring', stiffness: 280, damping: 20 }} style={{ borderRadius: 18 }}>
-    <Link to={`/products/${p.slug}`} className="pcard-link home-card">
-      {/* Ảnh */}
-      <div style={{ position: 'relative', padding: 10 }}>
-        <div className="pcard-img" style={{ width: '100%', aspectRatio: '1/1', borderRadius: 12, overflow: 'hidden', background: GRADS[gi], position: 'relative' }}>
-          {img && <img src={img} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />}
-        </div>
-        {badge && (
-          <span style={{ position: 'absolute', top: 20, left: 20, background: badge.startsWith('-') ? '#c0563f' : T.ink, color: T.cream, fontSize: 10, fontWeight: 700, letterSpacing: 1, textTransform: 'uppercase', padding: '4px 9px', borderRadius: 6 }}>{badge}</span>
-        )}
-        <button onClick={handleWish} style={{ position: 'absolute', top: 20, right: 20, width: 32, height: 32, borderRadius: '50%', background: wished ? T.brown : 'rgba(255,255,255,.9)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: wished ? '#fff' : T.ink, transition: 'all .22s' }}>
-          {wished ? Icon.heartF : Icon.heart}
-        </button>
-      </div>
-
-      {/* Info */}
-      <div style={{ padding: '4px 16px 18px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 6 }}>
-          <span style={{ color: T.goldY, display: 'flex', gap: 1 }}>{'★★★★★'.split('').map((s, i) => <span key={i}>{s}</span>)}</span>
-          {p.reviewCount > 0 && <span style={{ fontSize: 11, color: T.muted }}>({p.reviewCount})</span>}
-        </div>
-        <div style={{ ...T.serif, fontSize: 19, fontWeight: 600, lineHeight: 1.25, color: T.ink, marginBottom: 4 }}>{p.name}</div>
-        {p.shortDescription && (
-          <div style={{ fontSize: 12, color: T.muted, marginBottom: 10, lineHeight: 1.5, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.shortDescription}</div>
-        )}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, marginTop: 10 }}>
-          <div>
-            <span style={{ fontSize: 16, fontWeight: 700, color: T.brown }}>{formatVnd(price)}</span>
-            {discount > 0 && <span style={{ fontSize: 12, color: '#bbb', textDecoration: 'line-through', marginLeft: 7 }}>{formatVnd(compare)}</span>}
-          </div>
-          <button onClick={handleAdd} title="Thêm vào giỏ" style={{ width: 36, height: 36, borderRadius: 10, background: added ? T.brown : T.soft, color: added ? '#fff' : T.ink, border: `1px solid ${T.border}`, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all .22s', flexShrink: 0 }}>
-            {added ? <span style={{ fontSize: 13, fontWeight: 700 }}>✓</span> : Icon.bag}
-          </button>
-        </div>
-      </div>
-    </Link>
-    </motion.div>
-  );
-}
 
 /* ══════════════════════════════════════════════════
    FLASH SALE
@@ -506,6 +382,132 @@ function BrandBanner() {
     </section>
   );
 }
+
+/* ══════════════════════════════════════════════════
+   PRODUCTS SECTION (dùng lại cho 2 section)
+══════════════════════════════════════════════════ */
+const TABS = [
+  { key: 'featured',    label: 'Nổi bật',    eyebrow: 'Được yêu thích nhất' },
+  { key: 'newArrivals', label: 'Hàng mới về', eyebrow: 'Mới nhất'           },
+];
+
+function ProductTabs({ featured, newArrivals }) {
+  const [active, setActive] = useState('featured');
+  const lists = { featured, newArrivals };
+  const products = lists[active] || [];
+
+  return (
+    <section style={{ background: T.soft, padding: '80px 0' }}>
+      <div className="container">
+        {/* Header row */}
+        <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16, marginBottom: 44 }}>
+          {/* Tabs */}
+          <div>
+            <h2 style={{ ...T.serif, fontSize: 'clamp(38px,5vw,64px)', fontWeight: 600, color: T.ink, margin: '0 0 4px', lineHeight: 1.05 }}>Khám phá</h2>
+            <p style={{ fontSize: 11, letterSpacing: 2.5, textTransform: 'uppercase', color: T.brown, marginBottom: 14, fontWeight: 600 }}>Sản phẩm</p>
+            <div style={{ display: 'flex', gap: 4, background: T.border, borderRadius: 12, padding: 4 }}>
+              {TABS.map(t => (
+                <button key={t.key} onClick={() => setActive(t.key)}
+                  style={{
+                    padding: '8px 24px', borderRadius: 9, border: 'none', cursor: 'pointer', fontSize: 14, fontWeight: 600,
+                    background: active === t.key ? '#fff' : 'transparent',
+                    color: active === t.key ? T.ink : T.muted,
+                    boxShadow: active === t.key ? '0 2px 8px rgba(43,44,44,.1)' : 'none',
+                    transition: 'all .2s',
+                  }}>
+                  {t.label}
+                </button>
+              ))}
+            </div>
+          </div>
+          <Link to="/products" style={{ fontSize: 13, fontWeight: 700, color: T.brown, borderBottom: `1.5px solid ${T.brown}`, paddingBottom: 2, whiteSpace: 'nowrap', letterSpacing: .3 }}>Xem tất cả →</Link>
+        </div>
+
+        {/* Grid */}
+        <StaggerList key={active} className="home-prod-grid">
+          {products.slice(0, 8).map(p => <StaggerItem key={p._id}><PCard p={p} /></StaggerItem>)}
+        </StaggerList>
+
+        {products.length === 0 && (
+          <p style={{ textAlign: 'center', color: T.muted, padding: '48px 0' }}>Chưa có sản phẩm.</p>
+        )}
+
+        <div style={{ textAlign: 'center', marginTop: 48 }}>
+          <Link to="/products" style={{ display: 'inline-block', padding: '14px 48px', background: T.ink, color: T.cream, borderRadius: 50, fontSize: 14, fontWeight: 600, letterSpacing: .4, textDecoration: 'none' }}>
+            Xem thêm sản phẩm
+          </Link>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ══════════════════════════════════════════════════
+   PRODUCT CARD
+══════════════════════════════════════════════════ */
+function PCard({ p }) {
+  const { addItem } = useCart();
+  const [added, setAdded] = useState(false);
+  const [wished, setWished] = useState(false);
+  const v = p.variants?.[0];
+  const price = v?.price ?? 0;
+  const compare = v?.compareAtPrice;
+  const img = p.images?.[0] || v?.images?.[0];
+  const discount = compare > price ? Math.round((1 - price / compare) * 100) : 0;
+  const gi = gradIdx(p._id);
+  const badge = discount > 0 ? `-${discount}%` : p.isNew ? 'Mới' : p.isFeatured ? 'Hot' : null;
+
+  const handleAdd = async (e) => {
+    e.preventDefault(); e.stopPropagation();
+    if (!v) return;
+    await addItem(p._id, v.sku, 1);
+    setAdded(true);
+    setTimeout(() => setAdded(false), 1400);
+  };
+
+  const handleWish = (e) => { e.preventDefault(); e.stopPropagation(); setWished(w => !w); };
+
+  return (
+    <motion.div whileHover={{ y: -5, boxShadow: '0 20px 50px rgba(43,44,44,.13)' }} transition={{ type: 'spring', stiffness: 280, damping: 20 }} style={{ borderRadius: 18 }}>
+    <Link to={`/products/${p.slug}`} className="pcard-link home-card">
+      {/* Ảnh */}
+      <div style={{ position: 'relative', padding: 10 }}>
+        <div className="pcard-img" style={{ width: '100%', aspectRatio: '1/1', borderRadius: 12, overflow: 'hidden', background: GRADS[gi], position: 'relative' }}>
+          {img && <img src={img} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />}
+        </div>
+        {badge && (
+          <span style={{ position: 'absolute', top: 20, left: 20, background: badge.startsWith('-') ? '#c0563f' : T.ink, color: T.cream, fontSize: 10, fontWeight: 700, letterSpacing: 1, textTransform: 'uppercase', padding: '4px 9px', borderRadius: 6 }}>{badge}</span>
+        )}
+        <button onClick={handleWish} style={{ position: 'absolute', top: 20, right: 20, width: 32, height: 32, borderRadius: '50%', background: wished ? T.brown : 'rgba(255,255,255,.9)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: wished ? '#fff' : T.ink, transition: 'all .22s' }}>
+          {wished ? Icon.heartF : Icon.heart}
+        </button>
+      </div>
+
+      {/* Info */}
+      <div style={{ padding: '4px 16px 18px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 6 }}>
+          <span style={{ color: T.goldY, display: 'flex', gap: 1 }}>{'★★★★★'.split('').map((s, i) => <span key={i}>{s}</span>)}</span>
+          {p.reviewCount > 0 && <span style={{ fontSize: 11, color: T.muted }}>({p.reviewCount})</span>}
+        </div>
+        <div style={{ ...T.serif, fontSize: 19, fontWeight: 600, lineHeight: 1.25, color: T.ink, marginBottom: 4 }}>{p.name}</div>
+        {p.shortDescription && (
+          <div style={{ fontSize: 12, color: T.muted, marginBottom: 10, lineHeight: 1.5, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.shortDescription}</div>
+        )}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, marginTop: 10 }}>
+          <div>
+            <span style={{ fontSize: 16, fontWeight: 700, color: T.brown }}>{formatVnd(price)}</span>
+            {discount > 0 && <span style={{ fontSize: 12, color: '#bbb', textDecoration: 'line-through', marginLeft: 7 }}>{formatVnd(compare)}</span>}
+          </div>
+          <button onClick={handleAdd} title="Thêm vào giỏ" style={{ width: 36, height: 36, borderRadius: 10, background: added ? T.brown : T.soft, color: added ? '#fff' : T.ink, border: `1px solid ${T.border}`, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all .22s', flexShrink: 0 }}>
+            {added ? <span style={{ fontSize: 13, fontWeight: 700 }}>✓</span> : Icon.bag}
+          </button>
+        </div>
+      </div>
+    </Link>
+    </motion.div>
+  );
+}
+
 
 /* ══════════════════════════════════════════════════
    SPACES
