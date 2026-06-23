@@ -99,13 +99,13 @@ export default function Home() {
       <Hero banners={d.banners || []} />
       <TrustBar />
       {(d.categories || []).length > 0 && <Categories categories={d.categories} />}
-      <ProductTabs featured={featured} newArrivals={newArrivals} />
       {d.flashSale && <FlashSale sale={d.flashSale} />}
       <BrandBanner />
+      <ProductTabs featured={featured} newArrivals={newArrivals} />
       <Spaces />
       <WhyUs />
-      <Reviews items={d.testimonials?.length ? d.testimonials : FALLBACK_REVIEWS} />
       <Blog posts={d.latestPosts?.length ? d.latestPosts : FALLBACK_POSTS} />
+      <Reviews items={d.testimonials?.length ? d.testimonials : FALLBACK_REVIEWS} />
       <Gallery images={allProducts.slice(0, 8).flatMap(p => p.images?.[0] ? [p.images[0]] : (p.variants?.[0]?.images?.[0] ? [p.variants[0].images[0]] : [null])).slice(0, 8)} />
     </div>
   );
