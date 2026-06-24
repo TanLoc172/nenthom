@@ -25,7 +25,7 @@ export default function Checkout() {
   const [addresses, setAddresses] = useState([]);
   const [selectedAddr, setSelectedAddr] = useState('');
 
-  // VietQR step state — restored from localStorage on reload
+  // VietQR step state — restored from localStorage only on page reload
   const PENDING_KEY = 'nt_pending_payment';
   const saved = (() => {
     try {
@@ -36,6 +36,9 @@ export default function Checkout() {
         localStorage.removeItem(PENDING_KEY);
         return null;
       }
+      // Only restore on page reload, not on fresh navigation from another page
+      const navType = performance.getEntriesByType?.('navigation')?.[0]?.type;
+      if (navType !== 'reload') return null;
       return s;
     } catch { return null; }
   })();
