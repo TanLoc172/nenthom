@@ -1,5 +1,21 @@
 {
   "version": 2,
   "builds": [{ "src": "api/index.js", "use": "@vercel/node" }],
-  "routes": [{ "src": "/(.*)", "dest": "api/index.js" }]
+  "routes": [{ "src": "/(.*)", "dest": "api/index.js" }],
+  "env": {
+    "NODE_ENV": "production",
+    "MONGODB_URI": "mongodb+srv://trantanloc1720:RQzkXf4mOQQC0XhJ@cluster0.3msw7.mongodb.net/?appName=Cluster0",
+    "DB_NAME": "EshopDb",
+    "JWT_SECRET": "01ca187b70f4cd1388ceee7b651491c24dc69ff0d3f274cd31a61652efc10b28619fb2931204853f30f60ade16570bbd2d54182031cc04cde0da57bd78de1a62",
+    "JWT_EXPIRES": "30d",
+    "CLIENT_URL": "https://nenthom-client.vercel.app",
+    "VIETQR_BANK_BIN": "970422",
+    "VIETQR_BANK_NAME": "MBBank",
+    "VIETQR_ACCOUNT_NO": "5835901072004",
+    "VIETQR_ACCOUNT_NAME": "TRAN TAN LOC",
+    "VIETQR_TEMPLATE": "compact2",
+    "CASSO_API_KEY": "AK_CS.1509d3b068de11f18b9849886b59a095.2V7TJ2KvW1sUxXCItaB5EXACWQiaweqUvoUj5EnW3j5g8GP35di4ZBUqAKbZvGP4dN6M1hVP",
+    "ADMIN_EMAIL": "Admin@gmail.com",
+    "ADMIN_PASSWORD": "Admin@123"
+  }
 }
