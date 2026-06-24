@@ -448,7 +448,6 @@ function ProductTabs({ featured, newArrivals }) {
 function PCard({ p }) {
   const { addItem } = useCart();
   const [added, setAdded] = useState(false);
-  const [wished, setWished] = useState(false);
   const v = p.variants?.[0];
   const price = v?.price ?? 0;
   const compare = v?.compareAtPrice;
@@ -465,8 +464,6 @@ function PCard({ p }) {
     setTimeout(() => setAdded(false), 1400);
   };
 
-  const handleWish = (e) => { e.preventDefault(); e.stopPropagation(); setWished(w => !w); };
-
   return (
     <motion.div whileHover={{ y: -5, boxShadow: '0 20px 50px rgba(43,44,44,.13)' }} transition={{ type: 'spring', stiffness: 280, damping: 20 }} style={{ borderRadius: 18 }}>
     <Link to={`/products/${p.slug}`} className="pcard-link home-card">
@@ -478,9 +475,6 @@ function PCard({ p }) {
         {badge && (
           <span style={{ position: 'absolute', top: 20, left: 20, background: badge.startsWith('-') ? '#c0563f' : T.ink, color: T.cream, fontSize: 10, fontWeight: 700, letterSpacing: 1, textTransform: 'uppercase', padding: '4px 9px', borderRadius: 6 }}>{badge}</span>
         )}
-        <button onClick={handleWish} style={{ position: 'absolute', top: 20, right: 20, width: 32, height: 32, borderRadius: '50%', background: wished ? T.brown : 'rgba(255,255,255,.9)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: wished ? '#fff' : T.ink, transition: 'all .22s' }}>
-          {wished ? Icon.heartF : Icon.heart}
-        </button>
       </div>
 
       {/* Info */}

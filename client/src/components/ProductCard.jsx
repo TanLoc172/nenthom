@@ -7,7 +7,6 @@ import { I } from '../icons.jsx';
 export default function ProductCard({ product }) {
   const { addItem } = useCart();
   const [added, setAdded] = useState(false);
-  const [wished, setWished] = useState(false);
   const [hovered, setHovered] = useState(false);
   const variant = product.variants?.[0];
   const price = variant?.price ?? 0;
@@ -38,9 +37,6 @@ export default function ProductCard({ product }) {
             : <><div className="jar"></div><div className="flame"></div></>}
         </div>
         {badge && <span className="pbadge">{badge}</span>}
-        <span className={'wish' + (wished ? ' on' : '')} onClick={(e) => { e.preventDefault(); e.stopPropagation(); setWished((w) => !w); }}>
-          <svg width="15" height="15" viewBox="0 0 24 24" fill={wished ? '#fff' : 'none'} stroke={wished ? '#fff' : '#8B6B4A'} strokeWidth="1.7"><path d="M12 20.5l-1.4-1.3C5.4 14.5 2 11.4 2 7.6 2 4.9 4.1 3 6.7 3c1.6 0 3.1.8 4 2 .9-1.2 2.4-2 4-2C21.3 3 23.4 4.9 23.4 7.6c0 3.8-3.4 6.9-8.6 11.6L12 20.5z" /></svg>
-        </span>
       </div>
       <div className="pinfo">
         <div className="stars">
