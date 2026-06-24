@@ -837,6 +837,8 @@ textarea.inp{resize:vertical;min-height:120px}
 /* hover micro-animations */
 .pcard .candle{transition:transform .55s cubic-bezier(.22,1,.36,1)}
 .pcard:hover .candle{transform:scale(1.05)}
+.qv-btn{position:absolute;bottom:12px;left:50%;transform:translateX(-50%) translateY(6px);opacity:0;white-space:nowrap;background:rgba(255,255,255,.95);border:none;border-radius:20px;padding:7px 18px;font-size:12px;font-weight:600;color:#2C2C2C;cursor:pointer;transition:opacity .22s,transform .22s;box-shadow:0 4px 14px rgba(0,0,0,.12);pointer-events:none;letter-spacing:.3px}
+.pcard:hover .qv-btn{opacity:1;transform:translateX(-50%) translateY(0);pointer-events:auto}
 .scent>div:first-child{transition:transform .4s cubic-bezier(.22,1,.36,1),box-shadow .4s}
 .scent:hover>div:first-child{transform:scale(1.05);box-shadow:0 16px 36px rgba(43,44,44,.16)}
 .btn:active{transform:scale(.97)}
