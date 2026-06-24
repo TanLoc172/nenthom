@@ -27,7 +27,18 @@ export default function Checkout() {
 
   // VietQR step state — restored from localStorage on reload
   const PENDING_KEY = 'nt_pending_payment';
-  const saved = (() => { try { return JSON.parse(localStorage.getItem(PENDING_KEY)); } catch { return null; } })();
+  const saved = (() => {
+    try {
+      const s = JSON.parse(localStorage.getItem(PENDING_KEY));
+      if (!s) return null;
+      // Auto-expire after 15 minutes
+      if (s.savedAt && Date.now() - s.savedAt > 15 * 60 * 1000) {
+        localStorage.removeItem(PENDING_KEY);
+        return null;
+      }
+      return s;
+    } catch { return null; }
+  })();
 
   const [step, setStep] = useState(saved?.step || 'form');
   const [orderId, setOrderId] = useState(saved?.orderId || null);
@@ -145,6 +156,7 @@ export default function Checkout() {
           couponCode: coupon,
           discount,
           cartSnapshot: { items: cart.items, subtotal: cart.subtotal },
+          savedAt: Date.now(),
         }));
 
         setStep('qr');
