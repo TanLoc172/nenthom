@@ -100,7 +100,7 @@ export default function Checkout() {
           setStep('success');
         }
       } catch { }
-    }, 5000);
+    }, 3000);
   };
 
   const submit = async (e) => {
