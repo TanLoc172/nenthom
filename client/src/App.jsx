@@ -17,7 +17,6 @@ import ResetPassword from './pages/ResetPassword.jsx';
 import Account from './pages/Account.jsx';
 import Orders from './pages/Orders.jsx';
 import OrderDetail from './pages/OrderDetail.jsx';
-import Wishlist from './pages/Wishlist.jsx';
 import Blog from './pages/Blog.jsx';
 import BlogDetail from './pages/BlogDetail.jsx';
 import Contact from './pages/Contact.jsx';
@@ -70,7 +69,6 @@ export default function App() {
           <Route path="/account" element={<Account />} />
           <Route path="/orders" element={<Orders />} />
           <Route path="/orders/:id" element={<OrderDetail />} />
-          <Route path="/wishlist" element={<Wishlist />} />
         </Route>
         <Route path="*" element={<NotFound />} />
       </Route>

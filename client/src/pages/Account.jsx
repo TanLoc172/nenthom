@@ -48,7 +48,6 @@ export default function Account() {
               <span key={k} onClick={() => setTab(k)} style={{ padding: '12px 16px', borderRadius: 10, cursor: 'pointer', fontSize: 14, fontWeight: 600, background: tab === k ? 'var(--wood)' : 'transparent', color: tab === k ? '#fff' : 'var(--ink)' }}>{l}</span>
             ))}
             <Link to="/orders" style={{ padding: '12px 16px', borderRadius: 10, fontSize: 14, fontWeight: 600, color: 'var(--ink)' }}>Đơn hàng</Link>
-            <Link to="/wishlist" style={{ padding: '12px 16px', borderRadius: 10, fontSize: 14, fontWeight: 600, color: 'var(--ink)' }}>Yêu thích</Link>
             <span onClick={doLogout} style={{ padding: '12px 16px', borderRadius: 10, cursor: 'pointer', fontSize: 14, fontWeight: 600, color: '#c0563f' }}>Đăng xuất</span>
           </div>
           <div style={{ marginTop: 16, padding: '14px 18px', background: 'var(--soft)', borderRadius: 12, fontSize: 13, color: 'var(--muted)' }}>Điểm tích lũy: <b style={{ color: 'var(--wood)' }}>{profile.profile.loyaltyPoints || 0}</b></div>

@@ -11,7 +11,6 @@ import * as cart from '../controllers/cartController.js';
 import * as order from '../controllers/orderController.js';
 import * as coupon from '../controllers/couponController.js';
 import * as review from '../controllers/reviewController.js';
-import * as wishlist from '../controllers/wishlistController.js';
 import * as content from '../controllers/contentController.js';
 import * as dash from '../controllers/dashboardController.js';
 import * as user from '../controllers/userController.js';
@@ -72,11 +71,6 @@ r.post('/coupons/validate', coupon.validateCoupon);
 r.post('/checkout', order.checkout); // checkout reads cart internally
 r.get('/orders', requireAuth, order.myOrders);
 r.get('/orders/:id', order.getOrder);
-
-// ---------- Wishlist (auth) ----------
-r.get('/wishlist', requireAuth, wishlist.getWishlist);
-r.post('/wishlist/:productId', requireAuth, wishlist.addToWishlist);
-r.delete('/wishlist/:productId', requireAuth, wishlist.removeFromWishlist);
 
 // ---------- Account (auth) ----------
 r.get('/account/profile', requireAuth, user.getProfile);

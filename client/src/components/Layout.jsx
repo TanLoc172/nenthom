@@ -73,7 +73,6 @@ export default function Layout() {
             <span className="icon-btn desktop-only" title="Tìm kiếm" onClick={() => navigate('/products')}>{I.search}</span>
             <span className="icon-btn desktop-only" title="Tài khoản" onClick={() => navigate(user ? '/account' : '/login')}>{I.user}</span>
             {isAdmin && <span className="icon-btn desktop-only" title="Quản trị" onClick={() => navigate('/admin')}>{I.box}</span>}
-            <span className="icon-btn desktop-only" title="Yêu thích" onClick={() => navigate('/wishlist')}>{I.heart}</span>
             <span className="icon-btn" title="Giỏ hàng" onClick={() => navigate('/cart')}>{I.bag}{cartCount > 0 && <span className="badge">{cartCount}</span>}</span>
             <span className="hamb" onClick={() => setMenuOpen(true)}><i></i><i></i><i></i></span>
           </div>
@@ -91,7 +90,6 @@ export default function Layout() {
           {MENU.map((m) => (
             <NavLink key={m.to} to={m.to} end={m.end} onClick={() => setMenuOpen(false)}>{m.label}</NavLink>
           ))}
-          <NavLink to="/wishlist" onClick={() => setMenuOpen(false)}>Yêu thích</NavLink>
           {user ? (
             <>
               <NavLink to="/account" onClick={() => setMenuOpen(false)}>Tài khoản</NavLink>
