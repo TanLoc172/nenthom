@@ -27,17 +27,22 @@ export default function ProductDetail() {
     api.get(`/products/${productId}/reviews`).then((rr) => setReviews(rr.data)).catch(() => {});
 
   useEffect(() => {
+    let cancelled = false;
     setData(null);
     setBundle(null);
     setTab('desc');
     setQty(1);
     setGi(0);
     api.get(`/products/${slug}`).then((r) => {
+      if (cancelled) return;
       setData(r.data);
       setVariant(r.data.product.variants?.[0] || null);
       loadReviews(r.data.product._id);
-      api.get(`/bundles/by-product/${r.data.product._id}`).then((rb) => setBundle(rb.data)).catch(() => {});
+      api.get(`/bundles/by-product/${r.data.product._id}`)
+        .then((rb) => { if (!cancelled) setBundle(rb.data); })
+        .catch(() => {});
     }).catch(() => {});
+    return () => { cancelled = true; };
   }, [slug]);
 
   useSeo(data ? {
@@ -80,7 +85,7 @@ export default function ProductDetail() {
 
   return (
     <div>
-      <div className="container" style={{ padding: '28px 32px 0' }}>
+      <div className="container" style={{ paddingTop: 28, paddingBottom: 0 }}>
         <div className="crumb">
           <Link className="tlink" to="/">Trang chủ</Link> / <Link className="tlink" to="/products">Sản phẩm</Link>
           {product.category?.name && <> / <Link className="tlink" to={`/category/${product.category.slug}`}>{product.category.name}</Link></>}
@@ -88,7 +93,7 @@ export default function ProductDetail() {
         </div>
       </div>
 
-      <div className="container detail" style={{ padding: '30px 32px 70px', display: 'grid', gridTemplateColumns: '1.05fr 1fr', gap: 60, alignItems: 'start' }}>
+      <div className="container detail page-pad" style={{ paddingTop: 30, paddingBottom: 70, display: 'grid', gridTemplateColumns: '1.05fr 1fr', gap: 60, alignItems: 'start' }}>
         {/* Gallery */}
         <div style={{ position: 'sticky', top: 98, display: 'grid', gridTemplateColumns: gallery.length > 1 ? '84px 1fr' : '1fr', gap: 16 }} className="gallery">
           {gallery.length > 1 && (
@@ -121,7 +126,7 @@ export default function ProductDetail() {
         {/* Info */}
         <div>
           {discount > 0 ? <span className="tag" style={{ marginBottom: 16 }}>-{discount}%</span> : product.isNew ? <span className="tag" style={{ marginBottom: 16 }}>New</span> : null}
-          <h1 className="serif" style={{ fontSize: 46, fontWeight: 600, lineHeight: 1.08, margin: '10px 0 14px' }}>{product.name}</h1>
+          <h1 className="serif" style={{ fontSize: 'clamp(28px,5vw,46px)', fontWeight: 600, lineHeight: 1.08, margin: '10px 0 14px' }}>{product.name}</h1>
 
           {reviews.count > 0 && (
             <div onClick={() => setTab('reviews')} style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 22, cursor: 'pointer' }}>
@@ -193,13 +198,13 @@ export default function ProductDetail() {
 
       {/* Bundle Deal */}
       {bundle?.companions?.length > 0 && (
-        <div className="container" style={{ padding: '0 32px 56px' }}>
+        <div className="container" style={{ paddingBottom: 56 }}>
           <BundleDeal main={product} companions={bundle.companions} discountPercent={bundle.discountPercent} label={bundle.label} addItem={addItem} />
         </div>
       )}
 
       {/* Tabs */}
-      <div className="container" style={{ padding: '0 32px 70px' }}>
+      <div className="container" style={{ paddingBottom: 70 }}>
         <div style={{ display: 'flex', gap: 34, borderBottom: '1px solid var(--line)', overflowX: 'auto' }}>
           {[['desc', 'Mô tả sản phẩm'], ['reviews', `Đánh giá (${reviews.count})`]].map(([key, label]) => (
             <span key={key} onClick={() => setTab(key)} style={{ cursor: 'pointer', padding: '16px 4px', fontSize: 14, fontWeight: 600, whiteSpace: 'nowrap', borderBottom: '2px solid ' + (tab === key ? 'var(--wood)' : 'transparent'), color: tab === key ? 'var(--ink)' : '#9b9289' }}>{label}</span>
@@ -258,7 +263,7 @@ export default function ProductDetail() {
       {/* Related */}
       {related?.length > 0 && (
         <div style={{ background: 'var(--cream)' }}>
-          <div className="container" style={{ padding: '72px 32px' }}>
+          <div className="container" style={{ paddingTop: 72, paddingBottom: 72 }}>
             <h2 className="serif" style={{ fontSize: 36, fontWeight: 600, margin: '0 0 34px' }}>Sản phẩm liên quan</h2>
             <div className="grid4">{related.map((p) => <ProductCard key={p._id} product={p} />)}</div>
           </div>

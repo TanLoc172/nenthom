@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { money } from '../utils/format.js';
 import { useCart } from '../context/CartContext.jsx';
@@ -11,17 +11,22 @@ export default function QuickView({ slug, onClose }) {
   const [qty, setQty] = useState(1);
   const [imgIdx, setImgIdx] = useState(0);
   const [added, setAdded] = useState(false);
+  const onCloseRef = useRef(onClose);
+  useEffect(() => { onCloseRef.current = onClose; }, [onClose]);
 
   useEffect(() => {
+    let cancelled = false;
     api.get(`/products/${slug}`).then(r => {
+      if (cancelled) return;
       setData(r.data);
       setVariant(r.data.product.variants?.[0] || null);
     }).catch(() => {});
 
-    const onKey = (e) => e.key === 'Escape' && onClose();
+    const onKey = (e) => e.key === 'Escape' && onCloseRef.current();
     window.addEventListener('keydown', onKey);
     document.body.style.overflow = 'hidden';
     return () => {
+      cancelled = true;
       window.removeEventListener('keydown', onKey);
       document.body.style.overflow = '';
     };

@@ -7,6 +7,7 @@ export default function OrderConfirmation() {
   const { id } = useParams();
   const [order, setOrder] = useState(null);
   const [qr, setQr] = useState(null);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     api.get(`/orders/${id}`).then((r) => {
@@ -14,15 +15,16 @@ export default function OrderConfirmation() {
       if (r.data.payment?.method === 'VietQR') {
         api.get(`/payment/vietqr/${id}`).then((q) => setQr(q.data)).catch(() => {});
       }
-    });
+    }).catch(() => setError('Không thể tải thông tin đơn hàng.'));
   }, [id]);
 
-  if (!order) return <div className="container" style={{ padding: '80px 32px', textAlign: 'center' }}><p className="muted">Đang tải…</p></div>;
+  if (error) return <div className="container page-pad" style={{ paddingTop: 80, paddingBottom: 80, textAlign: 'center' }}><p style={{ color: '#c0563f' }}>{error}</p></div>;
+  if (!order) return <div className="container page-pad" style={{ paddingTop: 80, paddingBottom: 80, textAlign: 'center' }}><p className="muted">Đang tải…</p></div>;
 
   const ship = order.shipping || {};
 
   return (
-    <div className="container" style={{ maxWidth: 620, padding: '80px 32px 110px', textAlign: 'center' }}>
+    <div className="container page-pad" style={{ maxWidth: 620, paddingTop: 80, paddingBottom: 110, textAlign: 'center' }}>
       <div style={{ position: 'relative', width: 104, height: 104, margin: '0 auto 30px' }}>
         <span style={{ position: 'absolute', inset: 0, borderRadius: '50%', background: 'var(--wood)', opacity: .18, animation: 'ring 1.6s ease-out infinite' }}></span>
         <div style={{ position: 'relative', width: 104, height: 104, borderRadius: '50%', background: 'var(--wood)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>

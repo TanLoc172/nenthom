@@ -5,9 +5,14 @@ import { money, formatDate } from '../utils/format.js';
 
 export default function Orders() {
   const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   useEffect(() => {
-    api.get('/orders').then((r) => setOrders(r.data));
+    api.get('/orders')
+      .then((r) => setOrders(r.data))
+      .catch(() => setError('Không thể tải đơn hàng. Vui lòng thử lại.'))
+      .finally(() => setLoading(false));
   }, []);
 
   return (
@@ -17,8 +22,12 @@ export default function Orders() {
         <h1 className="serif">Đơn hàng của tôi</h1>
       </div></div>
 
-      <div className="container" style={{ padding: '40px 32px 90px', maxWidth: 880 }}>
-        {orders.length === 0 ? (
+      <div className="container page-pad" style={{ paddingTop: 40, paddingBottom: 90, maxWidth: 880 }}>
+        {loading ? (
+          <div style={{ textAlign: 'center', padding: '60px 10px', color: '#9b9289' }}>Đang tải…</div>
+        ) : error ? (
+          <div style={{ textAlign: 'center', padding: '60px 10px', color: '#c0563f' }}>{error}</div>
+        ) : orders.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '60px 10px', color: '#9b9289' }}>
             <div style={{ fontSize: 42, marginBottom: 12 }}>📦</div>
             <div className="serif" style={{ fontSize: 22, color: 'var(--ink)', marginBottom: 6 }}>Chưa có đơn hàng</div>
@@ -39,6 +48,7 @@ export default function Orders() {
             </Link>
           ))
         )}
+
       </div>
     </div>
   );

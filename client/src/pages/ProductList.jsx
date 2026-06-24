@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import api from '../api/client.js';
 import ProductCard from '../components/ProductCard.jsx';
-import { I } from '../icons.jsx';
 
 const SORT_OPTIONS = [
   { value: 'newest',     label: 'Mới nhất' },
@@ -17,6 +16,7 @@ export default function ProductList() {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState(params.get('q') || '');
+  const [filterOpen, setFilterOpen] = useState(false);
 
   const q        = params.get('q') || '';
   const category = params.get('category') || '';
@@ -52,37 +52,44 @@ export default function ProductList() {
         <p className="muted" style={{ fontSize: 14, margin: '8px 0 0', maxWidth: 560 }}>Nến thơm thủ công từ tinh dầu thiên nhiên, được chế tác tỉ mỉ cho từng khoảnh khắc thư giãn.</p>
       </div></div>
 
-      <div className="container" style={{ padding: '40px 32px 90px', display: 'grid', gridTemplateColumns: '262px 1fr', gap: 42, alignItems: 'start' }} id="listgrid">
+      <div className="container page-pad" style={{ paddingTop: 40, paddingBottom: 90, display: 'grid', gridTemplateColumns: '262px 1fr', gap: 42, alignItems: 'start' }} id="listgrid">
         <aside style={{ position: 'sticky', top: 98 }} className="filters">
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 22 }}>
-            <div className="serif" style={{ fontSize: 24, fontWeight: 600 }}>Bộ lọc</div>
-            <span className="tlink" style={{ fontSize: 12, color: 'var(--wood)', textDecoration: 'underline' }} onClick={clearAll}>Xóa lọc</span>
-          </div>
+          <button className="filter-toggle" onClick={() => setFilterOpen(o => !o)}>
+            <span>Bộ lọc {(q || category) && <span style={{ color: 'var(--wood)' }}>•</span>}</span>
+            <span style={{ fontSize: 18, lineHeight: 1, transform: filterOpen ? 'rotate(180deg)' : 'none', transition: 'transform .2s' }}>⌄</span>
+          </button>
 
-          <div style={{ marginBottom: 26 }}>
-            <div style={{ fontSize: 13, fontWeight: 700, letterSpacing: .6, textTransform: 'uppercase', marginBottom: 14 }}>Tìm kiếm</div>
-            <div style={{ display: 'flex', gap: 8 }}>
-              <input className="inp" placeholder="Tên sản phẩm..." value={search} onChange={(e) => setSearch(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && update({ q: search })} />
-              <button className="btn btn-dark btn-sm" onClick={() => update({ q: search })}>Tìm</button>
+          <div className={`filter-panel${filterOpen ? ' open' : ''}`}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 22 }}>
+              <div className="serif" style={{ fontSize: 24, fontWeight: 600 }}>Bộ lọc</div>
+              <span className="tlink" style={{ fontSize: 12, color: 'var(--wood)', textDecoration: 'underline' }} onClick={clearAll}>Xóa lọc</span>
             </div>
-          </div>
 
-          <div style={{ marginBottom: 26 }}>
-            <div style={{ fontSize: 13, fontWeight: 700, letterSpacing: .6, textTransform: 'uppercase', marginBottom: 14 }}>Danh mục</div>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-              <span onClick={() => update({ category: '' })} style={pillStyle(!category)}>Tất cả</span>
-              {categories.map((c) => (
-                <span key={c._id} onClick={() => update({ category: c.slug })} style={pillStyle(category === c.slug)}>{c.name}</span>
-              ))}
+            <div style={{ marginBottom: 26 }}>
+              <div style={{ fontSize: 13, fontWeight: 700, letterSpacing: .6, textTransform: 'uppercase', marginBottom: 14 }}>Tìm kiếm</div>
+              <div style={{ display: 'flex', gap: 8 }}>
+                <input className="inp" placeholder="Tên sản phẩm..." value={search} onChange={(e) => setSearch(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && update({ q: search })} />
+                <button className="btn btn-dark btn-sm" onClick={() => update({ q: search })}>Tìm</button>
+              </div>
             </div>
-          </div>
 
-          <div>
-            <div style={{ fontSize: 13, fontWeight: 700, letterSpacing: .6, textTransform: 'uppercase', marginBottom: 14 }}>Sắp xếp</div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-              {SORT_OPTIONS.map((o) => (
-                <span key={o.value} onClick={() => update({ sort: o.value })} style={{ cursor: 'pointer', fontSize: 13, padding: '9px 13px', borderRadius: 9, background: sort === o.value ? 'var(--cream)' : 'transparent', color: sort === o.value ? 'var(--wood)' : '#6f665c', fontWeight: sort === o.value ? 700 : 500 }}>{o.label}</span>
-              ))}
+            <div style={{ marginBottom: 26 }}>
+              <div style={{ fontSize: 13, fontWeight: 700, letterSpacing: .6, textTransform: 'uppercase', marginBottom: 14 }}>Danh mục</div>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                <span onClick={() => update({ category: '' })} style={pillStyle(!category)}>Tất cả</span>
+                {categories.map((c) => (
+                  <span key={c._id} onClick={() => update({ category: c.slug })} style={pillStyle(category === c.slug)}>{c.name}</span>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <div style={{ fontSize: 13, fontWeight: 700, letterSpacing: .6, textTransform: 'uppercase', marginBottom: 14 }}>Sắp xếp</div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {SORT_OPTIONS.map((o) => (
+                  <span key={o.value} onClick={() => update({ sort: o.value })} style={{ cursor: 'pointer', fontSize: 13, padding: '9px 13px', borderRadius: 9, background: sort === o.value ? 'var(--cream)' : 'transparent', color: sort === o.value ? 'var(--wood)' : '#6f665c', fontWeight: sort === o.value ? 700 : 500 }}>{o.label}</span>
+                ))}
+              </div>
             </div>
           </div>
         </aside>

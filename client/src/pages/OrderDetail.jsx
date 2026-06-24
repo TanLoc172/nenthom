@@ -6,12 +6,18 @@ import { money, formatDate } from '../utils/format.js';
 export default function OrderDetail() {
   const { id } = useParams();
   const [order, setOrder] = useState(null);
+  const [error, setError] = useState('');
 
   useEffect(() => {
-    api.get(`/orders/${id}`).then((r) => setOrder(r.data));
+    setOrder(null);
+    setError('');
+    api.get(`/orders/${id}`)
+      .then((r) => setOrder(r.data))
+      .catch(() => setError('Không thể tải đơn hàng. Vui lòng thử lại.'));
   }, [id]);
 
-  if (!order) return <div className="container" style={{ padding: '60px 32px' }}><p className="muted">Đang tải…</p></div>;
+  if (error) return <div className="container page-pad" style={{ paddingTop: 60, paddingBottom: 60 }}><p style={{ color: '#c0563f' }}>{error}</p></div>;
+  if (!order) return <div className="container page-pad" style={{ paddingTop: 60, paddingBottom: 60 }}><p className="muted">Đang tải…</p></div>;
 
   const p = order.pricing;
   const Row = ({ label, value, strong }) => (
@@ -29,7 +35,7 @@ export default function OrderDetail() {
         <p className="muted" style={{ fontSize: 14, margin: '8px 0 0' }}>Ngày đặt: {formatDate(order.createdAt)} · Trạng thái: <b style={{ color: 'var(--wood)' }}>{order.orderStatus}</b></p>
       </div></div>
 
-      <div className="container acctgrid" style={{ padding: '40px 32px 90px', display: 'grid', gridTemplateColumns: '1fr 360px', gap: 42, alignItems: 'start' }}>
+      <div className="container acctgrid page-pad" style={{ paddingTop: 40, paddingBottom: 90, display: 'grid', gridTemplateColumns: '1fr 360px', gap: 42, alignItems: 'start' }}>
         <div>
           {order.items.map((it, i) => (
             <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 16, padding: '18px 0', borderBottom: '1px solid #F3EDE3' }}>

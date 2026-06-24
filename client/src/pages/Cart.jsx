@@ -9,7 +9,7 @@ export default function Cart() {
   const navigate = useNavigate();
 
   if (!cart.items.length) return (
-    <div className="container" style={{ padding: '42px 32px 90px' }}>
+    <div className="container page-pad" style={{ paddingTop: 42, paddingBottom: 90 }}>
       <div className="crumb"><Link className="tlink" to="/">Trang chủ</Link> / <b>Giỏ hàng</b></div>
       <h1 className="serif" style={{ fontSize: 46, fontWeight: 600, margin: '0 0 34px' }}>Giỏ hàng của bạn</h1>
       <div style={{ textAlign: 'center', padding: '80px 20px', color: '#9b9289' }}>
@@ -26,9 +26,9 @@ export default function Cart() {
   const freeShipPct = Math.min(100, (subtotal / FREE_SHIP_THRESHOLD) * 100);
 
   return (
-    <div className="container" style={{ padding: '42px 32px 90px' }}>
+    <div className="container page-pad" style={{ paddingTop: 42, paddingBottom: 90 }}>
       <div className="crumb"><Link className="tlink" to="/">Trang chủ</Link> / <b>Giỏ hàng</b></div>
-      <h1 className="serif" style={{ fontSize: 46, fontWeight: 600, margin: '0 0 34px' }}>Giỏ hàng của bạn</h1>
+      <h1 className="serif" style={{ fontSize: 'clamp(30px,5vw,46px)', fontWeight: 600, margin: '0 0 34px' }}>Giỏ hàng của bạn</h1>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 380px', gap: 42, alignItems: 'start' }} className="cartgrid">
         <div>

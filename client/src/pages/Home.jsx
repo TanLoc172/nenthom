@@ -133,7 +133,7 @@ function Hero({ banners }) {
   const s = slides[idx] || slides[0];
 
   return (
-    <section style={{ position: 'relative', height: '90vh', minHeight: 620, display: 'flex', alignItems: 'center', overflow: 'hidden', background: s.bg, transition: 'background 1s ease' }}>
+    <section className="hero-section" style={{ position: 'relative', height: '90vh', minHeight: 620, display: 'flex', alignItems: 'center', overflow: 'hidden', background: s.bg, transition: 'background 1s ease' }}>
       {s.img && <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${s.img})`, backgroundSize: 'cover', backgroundPosition: 'center' }} />}
       <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(105deg,rgba(15,10,6,.75) 0%,rgba(15,10,6,.35) 55%,transparent 100%)' }} />
       {!s.img && <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(55% 65% at 72% 48%,rgba(200,150,80,.28) 0%,transparent 65%)' }} />}
@@ -179,11 +179,11 @@ function TrustBar() {
   ];
   return (
     <div style={{ background: T.ink, color: T.cream }}>
-      <div className="container" style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 1 }}>
+      <div className="container trust-bar-grid">
         {items.map(({ icon, text }) => (
           <div key={text} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, padding: '18px 16px', borderRight: '1px solid rgba(255,255,255,.08)' }}>
             <span style={{ color: T.gold, flexShrink: 0 }}>{icon}</span>
-            <span style={{ fontSize: 13, fontWeight: 500, whiteSpace: 'nowrap' }}>{text}</span>
+            <span style={{ fontSize: 13, fontWeight: 500 }}>{text}</span>
           </div>
         ))}
       </div>
@@ -356,7 +356,7 @@ function BrandBanner() {
   return (
     <section style={{ background: T.ink, padding: '80px 0' }}>
       <div className="container">
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 64, alignItems: 'center' }}>
+        <div className="home-brand-grid">
           {/* Left */}
           <div style={{ color: T.cream }}>
             <div style={{ fontSize: 11, letterSpacing: 4, textTransform: 'uppercase', color: T.gold, fontWeight: 700, marginBottom: 18 }}>Câu chuyện thương hiệu</div>
@@ -642,7 +642,7 @@ function Gallery({ images }) {
         <div style={{ fontSize: 11, letterSpacing: 4, textTransform: 'uppercase', color: T.brown, fontWeight: 700, marginBottom: 10 }}>@nenthom.abc</div>
         <h2 style={{ ...T.serif, fontSize: 'clamp(26px,3.5vw,38px)', fontWeight: 600, margin: 0, color: T.ink }}>Theo dõi trên Instagram</h2>
       </div>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(8,1fr)', gap: 4, maxWidth: '100%' }}>
+      <div className="gallery-instagram">
         {images.slice(0, 8).map((src, i) => (
           <div key={i} className="gallery-cell" style={{ aspectRatio: '1/1', overflow: 'hidden', cursor: 'pointer', background: src ? undefined : GRADS[i % GRADS.length] }}>
             {src && <img src={src} alt="" className="gallery-img" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transition: 'transform .5s' }} />}

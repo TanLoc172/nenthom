@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useNavigationType } from 'react-router-dom';
 import api from '../api/client.js';
 import { useCart } from '../context/CartContext.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
@@ -11,6 +11,7 @@ export default function Checkout() {
   const { cart, refresh } = useCart();
   const { user } = useAuth();
   const navigate = useNavigate();
+  const navigationType = useNavigationType(); // 'POP' = reload/direct | 'PUSH'/'REPLACE' = React Router nav
 
   const [form, setForm] = useState({
     recipientName: '', recipientPhone: '', address: '',
@@ -36,9 +37,9 @@ export default function Checkout() {
         localStorage.removeItem(PENDING_KEY);
         return null;
       }
-      // Only restore on page reload, not on fresh navigation from another page
-      const navType = performance.getEntriesByType?.('navigation')?.[0]?.type;
-      if (navType !== 'reload') return null;
+      // useNavigationType() returns 'POP' for initial loads and browser reload,
+      // 'PUSH'/'REPLACE' for React Router in-app navigation. Only restore on reload.
+      if (navigationType !== 'POP') return null;
       return s;
     } catch { return null; }
   })();
@@ -199,9 +200,9 @@ export default function Checkout() {
   const total = cart.subtotal - discount;
 
   return (
-    <div className="container" style={{ padding: '42px 32px 90px' }}>
+    <div className="container page-pad" style={{ paddingTop: 42, paddingBottom: 90 }}>
       <div className="crumb"><Link className="tlink" to="/cart">Giỏ hàng</Link> / <b>Thanh toán</b></div>
-      <h1 className="serif" style={{ fontSize: 46, fontWeight: 600, margin: '0 0 34px' }}>Thanh toán</h1>
+      <h1 className="serif" style={{ fontSize: 'clamp(28px,5vw,46px)', fontWeight: 600, margin: '0 0 34px' }}>Thanh toán</h1>
 
       <form onSubmit={submit} style={{ display: 'grid', gridTemplateColumns: '1fr 400px', gap: 48, alignItems: 'start' }} className="cogrid">
         <div>
@@ -401,7 +402,7 @@ function QRScreen({ qrData, cart, discount, orderId, shipping = {}, couponCode =
   );
 
   return (
-    <div className="container" style={{ padding: '42px 32px 90px', maxWidth: 1200 }}>
+    <div className="container page-pad" style={{ paddingTop: 42, paddingBottom: 90, maxWidth: 1200 }}>
       <div className="crumb"><Link className="tlink" to="/">Trang chủ</Link> / <b>Chuyển khoản</b></div>
 
       {/* Header */}
@@ -439,7 +440,7 @@ function QRScreen({ qrData, cart, discount, orderId, shipping = {}, couponCode =
       </div>
 
       {/* 3 columns */}
-      <div style={{ display: 'grid', gridTemplateColumns: '240px 1fr 1fr', gap: 24, alignItems: 'start' }}>
+      <div className="qr-grid">
 
         {/* Col 1: QR code */}
         <div style={{ background: '#fff', border: '1px solid #F0E9DD', borderRadius: 18, padding: '24px 20px', textAlign: 'center' }}>
@@ -547,7 +548,7 @@ function QRScreen({ qrData, cart, discount, orderId, shipping = {}, couponCode =
         </div>
       </div>
 
-      <style>{`@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.3)}}@media(max-width:860px){div[style*="grid-template-columns: 240px 1fr 1fr"]{grid-template-columns:1fr!important}}`}</style>
+      <style>{`@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.3)}}`}</style>
     </div>
   );
 }

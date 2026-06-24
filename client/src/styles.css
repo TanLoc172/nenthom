@@ -862,3 +862,195 @@ textarea.inp{resize:vertical;min-height:120px}
 /* storefront full-width main */
 .main--full{max-width:none !important;padding:0 !important;width:100%}
 .main.store{max-width:none;padding:0;width:100%;min-height:60vh}
+
+/* ============================================================
+   RESPONSIVE OVERRIDES — appended last so they win the cascade
+   ============================================================ */
+
+/* ── Container horizontal padding: fix cascade regression from ABC storefront ── */
+@media (max-width: 768px) {
+  .container { padding-left: 18px !important; padding-right: 18px !important; }
+}
+@media (max-width: 480px) {
+  .container { padding-left: 14px !important; padding-right: 14px !important; }
+}
+
+/* ── Page vertical padding on small screens ── */
+@media (max-width: 480px) {
+  .page-pad { padding-top: 28px !important; padding-bottom: 60px !important; }
+}
+
+/* ── pagehead h1 ── */
+@media (max-width: 480px) {
+  .pagehead h1 { font-size: 26px !important; }
+  .pagehead .container { padding-top: 26px !important; padding-bottom: 26px !important; }
+}
+
+/* ── h1.serif catch-all small screens ── */
+@media (max-width: 480px) {
+  h1.serif { font-size: 28px !important; }
+}
+
+/* ── TrustBar: 4-col → 2-col → 1-col ── */
+.trust-bar-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+}
+@media (max-width: 720px) { .trust-bar-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 380px) { .trust-bar-grid { grid-template-columns: 1fr; } }
+
+/* ── Home BrandBanner: 2-col → 1-col ── */
+.home-brand-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 64px;
+  align-items: center;
+}
+@media (max-width: 860px) { .home-brand-grid { grid-template-columns: 1fr; gap: 36px; } }
+
+/* ── Instagram gallery: 8-col → 4-col → 4-col (tighter) ── */
+.gallery-instagram {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 4px;
+  max-width: 100%;
+}
+@media (max-width: 900px)  { .gallery-instagram { grid-template-columns: repeat(4, 1fr); } }
+@media (max-width: 480px)  { .gallery-instagram { grid-template-columns: repeat(4, 1fr); gap: 2px; } }
+
+/* ── Blog feature card: 2-col → 1-col ── */
+.blog-feature {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 36px;
+  align-items: center;
+}
+@media (max-width: 768px) {
+  .blog-feature { grid-template-columns: 1fr; gap: 0; }
+  .blog-feature .blog-feat-img { height: 220px !important; }
+  .blog-feature .blog-feat-body { padding: 24px !important; }
+}
+
+/* ── Flash sale countdown: wrap on small screens ── */
+.flash-countdown { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+@media (max-width: 480px) { .flash-countdown { justify-content: center; } }
+
+/* ── Spaces cards: height adjustment on 1-col mobile ── */
+@media (max-width: 560px) {
+  .home-space-grid > div { height: 200px !important; }
+}
+
+/* ── ProductList filter: collapsible on mobile ── */
+.filter-toggle {
+  display: none;
+  width: 100%;
+  padding: 13px 18px;
+  background: var(--cream);
+  border: 1.5px solid var(--line2);
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: left;
+  margin-bottom: 16px;
+  color: var(--ink);
+  align-items: center;
+  justify-content: space-between;
+}
+@media (max-width: 920px) {
+  .filter-toggle { display: flex; }
+  .filter-panel { display: none; }
+  .filter-panel.open { display: block; }
+}
+
+/* ── QR payment grid: 3-col → 1-col ── */
+.qr-grid {
+  display: grid;
+  grid-template-columns: 240px 1fr 1fr;
+  gap: 24px;
+  align-items: start;
+}
+@media (max-width: 860px) { .qr-grid { grid-template-columns: 1fr; } }
+
+/* ── Cart/checkout page titles on small screens ── */
+@media (max-width: 480px) {
+  .cartgrid, .cogrid { padding-top: 24px !important; }
+}
+
+/* ── Footer bottom flex on small screens ── */
+@media (max-width: 480px) {
+  .footer .bottom .container { flex-direction: column; gap: 6px; }
+}
+
+/* ── TopBar: hide on very small screens or wrap ── */
+@media (max-width: 480px) {
+  .topbar { font-size: 10px; letter-spacing: .5px; padding: 7px 12px; }
+}
+
+/* ── Blog grid fix: grid3 stays 2-col on 768-900px, 1-col below 560px ── */
+@media (max-width: 900px) { .grid3 { grid-template-columns: repeat(2,1fr); } }
+@media (max-width: 560px) { .grid3 { grid-template-columns: 1fr; } }
+
+/* ── Checkout form on very small screens ── */
+@media (max-width: 480px) {
+  .cogrid form > div[style*="grid-template-columns: 1fr 1fr"] { grid-template-columns: 1fr !important; }
+}
+
+/* ── Checkout order summary + form: 2-col → 1-col ── */
+@media (max-width: 900px) {
+  .cogrid { grid-template-columns: 1fr !important; }
+}
+
+/* ── ProductList sidebar + products: 2-col → 1-col ── */
+@media (max-width: 920px) {
+  #listgrid { grid-template-columns: 1fr !important; }
+}
+
+/* ── Contact info + form: 2-col → 1-col ── */
+@media (max-width: 768px) {
+  #contactgrid { grid-template-columns: 1fr !important; }
+}
+
+/* ── Account sidebar + content: 2-col → 1-col ── */
+@media (max-width: 860px) {
+  .acctgrid { grid-template-columns: 1fr !important; }
+  .acctgrid aside { position: static !important; }
+  .acctgrid aside > div:nth-child(2) {
+    display: flex; flex-direction: row; overflow-x: auto;
+    gap: 4px; scrollbar-width: none;
+  }
+}
+
+/* ── ProductDetail: 2-col → 1-col ── */
+@media (max-width: 860px) {
+  .detail { grid-template-columns: 1fr !important; gap: 32px !important; }
+}
+
+/* ── Hero section ── */
+@media (max-width: 620px) {
+  .hero-section { min-height: 480px !important; height: 75vh !important; }
+  .hero-section .hero-eyebrow { font-size: 9px !important; letter-spacing: 2.5px !important; }
+  .hero-section h1 { font-size: clamp(30px,9vw,48px) !important; }
+  .hero-section p { font-size: 14px !important; }
+  .hero-btn { padding: 13px 24px !important; font-size: 13px !important; }
+}
+
+/* ── Contact grid info box on mobile ── */
+@media (max-width: 920px) {
+  #contactgrid { padding-left: 0 !important; padding-right: 0 !important; }
+}
+
+/* ── Account aside on mobile: horizontal scroll tabs ── */
+@media (max-width: 920px) {
+  .acctgrid aside { position: static !important; }
+  .acctgrid aside > div:nth-child(2) {
+    display: flex;
+    flex-direction: row;
+    overflow-x: auto;
+    gap: 4px;
+    scrollbar-width: none;
+    padding-bottom: 4px;
+  }
+  .acctgrid aside > div:nth-child(2)::-webkit-scrollbar { display: none; }
+}

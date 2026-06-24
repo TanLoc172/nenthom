@@ -24,8 +24,14 @@ export default function Account() {
   const { logout } = useAuth();
   const navigate = useNavigate();
 
-  useEffect(() => { api.get('/account/profile').then((r) => setProfile(r.data)); }, []);
-  if (!profile) return <div className="container" style={{ padding: '60px 32px' }}><p className="muted">Đang tải…</p></div>;
+  const [profileError, setProfileError] = useState('');
+  useEffect(() => {
+    api.get('/account/profile')
+      .then((r) => setProfile(r.data))
+      .catch(() => setProfileError('Không thể tải thông tin tài khoản.'));
+  }, []);
+  if (profileError) return <div className="container page-pad" style={{ paddingTop: 60, paddingBottom: 60 }}><p style={{ color: '#c0563f' }}>{profileError}</p></div>;
+  if (!profile) return <div className="container page-pad" style={{ paddingTop: 60, paddingBottom: 60 }}><p className="muted">Đang tải…</p></div>;
 
   const name = [profile.profile.firstName, profile.profile.lastName].filter(Boolean).join(' ') || 'Tài khoản';
   const menu = [['profile', 'Hồ sơ'], ['addresses', 'Địa chỉ'], ['password', 'Mật khẩu']];
@@ -38,7 +44,7 @@ export default function Account() {
         <h1 className="serif">Xin chào, {name}</h1>
       </div></div>
 
-      <div className="container acctgrid" style={{ padding: '40px 32px 90px', display: 'grid', gridTemplateColumns: '250px 1fr', gap: 42, alignItems: 'start' }}>
+      <div className="container acctgrid page-pad" style={{ paddingTop: 40, paddingBottom: 90, display: 'grid', gridTemplateColumns: '250px 1fr', gap: 42, alignItems: 'start' }}>
         <aside style={{ position: 'sticky', top: 98 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 13, padding: 18, background: 'var(--soft)', borderRadius: 14, marginBottom: 16 }}>
             <div style={{ width: 46, height: 46, borderRadius: '50%', background: 'radial-gradient(circle at 40% 35%,#dcc09a,#8B6B4A)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 700, fontSize: 18, flex: 'none' }}>{name.charAt(0).toUpperCase()}</div>

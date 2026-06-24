@@ -51,7 +51,7 @@ export default function Contact() {
         <p className="muted" style={{ fontSize: 14, margin: '8px 0 0', maxWidth: 560 }}>Có câu hỏi về sản phẩm hay đơn hàng? Đội ngũ Nến Thơm ABC luôn sẵn sàng hỗ trợ bạn.</p>
       </div></div>
 
-      <div className="container" style={{ padding: '48px 32px 90px', display: 'grid', gridTemplateColumns: '1fr 1.2fr', gap: 48, alignItems: 'start' }} id="contactgrid">
+      <div className="container page-pad" style={{ paddingTop: 48, paddingBottom: 90, display: 'grid', gridTemplateColumns: '1fr 1.2fr', gap: 48, alignItems: 'start' }} id="contactgrid">
         <div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
             {info.map((c, k) => (
