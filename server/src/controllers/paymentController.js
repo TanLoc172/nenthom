@@ -50,7 +50,10 @@ export const checkPayment = asyncHandler(async (req, res) => {
     const cassoRes = await fetch('https://oauth.casso.vn/v2/transactions?sort=DESC&pageSize=50', {
       headers: { Authorization: `apikey ${apiKey}`, 'Content-Type': 'application/json' },
     });
-    if (!cassoRes.ok) return res.json({ paid: false });
+    if (!cassoRes.ok) {
+      console.warn('[Casso] HTTP', cassoRes.status);
+      return res.json({ paid: false, cassoStatus: cassoRes.status });
+    }
 
     const cassoData = await cassoRes.json();
     // Casso v2: data.records array; fallback to data as array
