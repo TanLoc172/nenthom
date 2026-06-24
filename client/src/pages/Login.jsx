@@ -31,7 +31,7 @@ export default function Login() {
 
   return (
     <AuthShell quoteIndex={0}>
-      <h1 style={{ fontFamily: "'Cormorant Garamond',Georgia,serif", fontSize: 32, fontWeight: 600, color: '#2C2C2C', margin: '0 0 6px' }}>Đăng nhập</h1>
+      <h1 style={{ fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif", fontSize: 32, fontWeight: 600, color: '#2C2C2C', margin: '0 0 6px' }}>Đăng nhập</h1>
       <p style={{ fontSize: 13, color: '#9b9289', margin: '0 0 28px' }}>Chào mừng bạn trở lại Nến Thơm ABC</p>
 
       <form onSubmit={submit} style={{ display: 'grid', gap: 14 }}>

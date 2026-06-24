@@ -11,7 +11,7 @@ import { FadeUp, StaggerList, StaggerItem, MotionBtn } from '../components/Motio
 const T = {
   ink: '#2C2C2C', cream: '#F5EFE6', brown: '#8B6B4A', brownDk: '#765939',
   gold: '#DCC5A1', goldY: '#D9A441', muted: '#9b9289', soft: '#FBF8F2', border: '#F0E9DD',
-  serif: { fontFamily: "'Cormorant Garamond', Georgia, serif" },
+  serif: { fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif' },
 };
 
 const GRADS = [

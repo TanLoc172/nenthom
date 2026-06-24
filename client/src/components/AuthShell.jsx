@@ -25,7 +25,7 @@ export default function AuthShell({ children, quoteIndex = 0 }) {
             <span style={{ width: 9, height: 9, borderRadius: '50%', background: '#DCC5A1', display: 'block' }} />
           </div>
           <div>
-            <div style={{ fontFamily: "'Cormorant Garamond',Georgia,serif", fontSize: 19, fontWeight: 600, color: '#F5EFE6', letterSpacing: .5 }}>Nến Thơm ABC</div>
+            <div style={{ fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif", fontSize: 19, fontWeight: 600, color: '#F5EFE6', letterSpacing: .5 }}>Nến Thơm ABC</div>
             <div style={{ fontSize: 8, letterSpacing: 3, color: '#DCC5A1', textTransform: 'uppercase', marginTop: 1 }}>Maison de Bougie</div>
           </div>
         </Link>
@@ -42,7 +42,7 @@ export default function AuthShell({ children, quoteIndex = 0 }) {
           </svg>
 
           <div style={{ textAlign: 'center' }}>
-            <p style={{ fontFamily: "'Cormorant Garamond',Georgia,serif", fontSize: 20, fontWeight: 500, color: '#F5EFE6', lineHeight: 1.6, fontStyle: 'italic', margin: '0 0 14px', maxWidth: 280 }}>
+            <p style={{ fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif", fontSize: 20, fontWeight: 500, color: '#F5EFE6', lineHeight: 1.6, fontStyle: 'italic', margin: '0 0 14px', maxWidth: 280 }}>
               "{QUOTES[quoteIndex % QUOTES.length]}"
             </p>
             <div style={{ fontSize: 11, letterSpacing: 2, color: '#DCC5A1', textTransform: 'uppercase' }}>— Nến Thơm ABC</div>

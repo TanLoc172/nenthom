@@ -28,7 +28,7 @@ export default function Register() {
 
   return (
     <AuthShell quoteIndex={1}>
-      <h1 style={{ fontFamily: "'Cormorant Garamond',Georgia,serif", fontSize: 32, fontWeight: 600, color: '#2C2C2C', margin: '0 0 6px' }}>Đăng ký</h1>
+      <h1 style={{ fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif", fontSize: 32, fontWeight: 600, color: '#2C2C2C', margin: '0 0 6px' }}>Đăng ký</h1>
       <p style={{ fontSize: 13, color: '#9b9289', margin: '0 0 28px' }}>Tạo tài khoản để trải nghiệm mua sắm tốt hơn</p>
 
       <form onSubmit={submit} style={{ display: 'grid', gap: 14 }}>
