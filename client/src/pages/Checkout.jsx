@@ -90,9 +90,12 @@ export default function Checkout() {
 
   const startPolling = (id) => {
     clearInterval(pollRef.current);
+    let tick = 0;
     pollRef.current = setInterval(async () => {
       try {
-        const r = await api.get(`/payment/check/${id}`);
+        tick += 1;
+        const sync = tick % 5 === 0 ? '?sync=1' : '';
+        const r = await api.get(`/payment/check/${id}${sync}`);
         if (r.data?.paid) {
           clearInterval(pollRef.current);
           localStorage.removeItem(PENDING_KEY);
@@ -100,7 +103,7 @@ export default function Checkout() {
           setStep('success');
         }
       } catch { }
-    }, 2000);
+    }, 1000);
   };
 
   const submit = async (e) => {

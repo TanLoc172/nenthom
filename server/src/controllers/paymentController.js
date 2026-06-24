@@ -27,17 +27,22 @@ export const getVietQr = asyncHandler(async (req, res) => {
   });
 });
 
-// GET /api/payment/check/:orderId  -> client polls this; server queries Casso API + reconciles
+// GET /api/payment/check/:orderId?sync=1
+// Fast path: check DB only (called every 1s).
+// Slow path: also call Casso API when ?sync=1 (called every 5s).
 export const checkPayment = asyncHandler(async (req, res) => {
-  const order = await Order.findById(req.params.orderId);
+  const order = await Order.findById(req.params.orderId, 'payment orderStatus pricing orderNumber');
   if (!order) return res.status(404).json({ message: 'Không tìm thấy đơn hàng' });
 
-  // Already paid — return immediately
   if (order.payment.status === 'paid') {
     return res.json({ paid: true, orderStatus: order.orderStatus });
   }
 
-  // Query Casso for recent transactions
+  // Only call Casso when client explicitly requests a sync
+  if (req.query.sync !== '1') {
+    return res.json({ paid: false });
+  }
+
   const apiKey = process.env.CASSO_API_KEY;
   if (!apiKey) return res.json({ paid: false });
 
@@ -54,7 +59,6 @@ export const checkPayment = asyncHandler(async (req, res) => {
       const desc = (tx.description || '').toUpperCase();
       const nums = extractOrderNumbers(desc);
       if (nums.includes(order.orderNumber.toUpperCase())) {
-        // Amount check with small tolerance (1đ)
         if (Math.abs((tx.amount || 0) - order.pricing.totalAmount) < 1) {
           order.payment.status = 'paid';
           order.payment.transactionId = String(tx.id || tx.tid || '');
@@ -66,9 +70,7 @@ export const checkPayment = asyncHandler(async (req, res) => {
         }
       }
     }
-  } catch {
-    // Casso API lỗi — fallback về unpaid, client tiếp tục poll
-  }
+  } catch { /* Casso lỗi, client tiếp tục poll */ }
 
   res.json({ paid: false });
 });
