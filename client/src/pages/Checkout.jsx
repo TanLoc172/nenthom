@@ -4,6 +4,7 @@ import api from '../api/client.js';
 import { useCart } from '../context/CartContext.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
 import { money } from '../utils/format.js';
+import AddressPicker from '../components/AddressPicker.jsx';
 
 /* ─── step: 'form' | 'qr' | 'success' ─── */
 export default function Checkout() {
@@ -12,7 +13,8 @@ export default function Checkout() {
   const navigate = useNavigate();
 
   const [form, setForm] = useState({
-    recipientName: '', recipientPhone: '', address: '', province: '',
+    recipientName: '', recipientPhone: '', address: '',
+    province: '', provinceCode: '', district: '', districtCode: '', ward: '', wardCode: '',
     paymentMethod: 'COD', guestEmail: '', notes: '',
   });
   const [coupon, setCoupon] = useState('');
@@ -48,8 +50,13 @@ export default function Checkout() {
       ...f,
       recipientName:  addr.recipientName  || '',
       recipientPhone: addr.recipientPhone || '',
-      address:        [addr.addressLine1, addr.ward, addr.district].filter(Boolean).join(', '),
-      province:       addr.province || '',
+      address:        addr.addressLine1   || '',
+      province:       addr.province       || '',
+      provinceCode:   addr.provinceCode   || '',
+      district:       addr.district       || '',
+      districtCode:   addr.districtCode   || '',
+      ward:           addr.ward           || '',
+      wardCode:       addr.wardCode       || '',
     }));
   };
 
@@ -85,11 +92,12 @@ export default function Checkout() {
     setError('');
     setSubmitting(true);
     try {
+      const fullAddress = [form.address, form.ward, form.district].filter(Boolean).join(', ');
       const r = await api.post('/checkout', {
         shipping: {
           recipientName: form.recipientName,
           recipientPhone: form.recipientPhone,
-          address: form.address,
+          address: fullAddress,
           province: form.province,
         },
         paymentMethod: form.paymentMethod,
@@ -192,8 +200,14 @@ export default function Checkout() {
                 <Field k="recipientPhone" label="Số điện thoại" required />
                 {!user && <Field k="guestEmail" label="Email" type="email" required />}
               </div>
-              <Field k="address" label="Địa chỉ" required />
-              <Field k="province" label="Tỉnh/Thành" />
+              <Field k="address" label="Số nhà, tên đường" required />
+              <div>
+                <span style={{ fontSize: 13, fontWeight: 600, color: '#4a443c', display: 'block', marginBottom: 7 }}>Tỉnh / Quận / Phường</span>
+                <AddressPicker
+                  value={form}
+                  onChange={(addr) => setForm(f => ({ ...f, ...addr }))}
+                />
+              </div>
               <label className="field">
                 <span style={{ fontSize: 13, fontWeight: 600, color: '#4a443c', display: 'block', marginBottom: 7 }}>Ghi chú</span>
                 <textarea className="inp" value={form.notes} onChange={set('notes')} rows={2} />

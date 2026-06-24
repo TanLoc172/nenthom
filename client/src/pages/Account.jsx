@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import api from '../api/client.js';
 import { useAuth } from '../context/AuthContext.jsx';
+import AddressPicker from '../components/AddressPicker.jsx';
 
 function Card({ title, children, action }) {
   return (
@@ -91,7 +92,7 @@ function ProfileForm({ profile, setProfile }) {
 function Addresses() {
   const [list, setList] = useState([]);
   const [adding, setAdding] = useState(null);
-  const blank = { recipientName: '', recipientPhone: '', addressLine1: '', ward: '', district: '', province: '', isDefault: false };
+  const blank = { recipientName: '', recipientPhone: '', addressLine1: '', ward: '', wardCode: '', district: '', districtCode: '', province: '', provinceCode: '', isDefault: false };
 
   const load = () => api.get('/account/addresses').then((r) => setList(r.data));
   useEffect(() => { load(); }, []);
@@ -112,12 +113,11 @@ function Addresses() {
             <input className="inp" placeholder="Người nhận" value={adding.recipientName} onChange={(e) => setAdding({ ...adding, recipientName: e.target.value })} required />
             <input className="inp" placeholder="Số điện thoại" value={adding.recipientPhone} onChange={(e) => setAdding({ ...adding, recipientPhone: e.target.value })} required />
           </div>
-          <input className="inp" placeholder="Địa chỉ" value={adding.addressLine1} onChange={(e) => setAdding({ ...adding, addressLine1: e.target.value })} required />
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
-            <input className="inp" placeholder="Phường/Xã" value={adding.ward} onChange={(e) => setAdding({ ...adding, ward: e.target.value })} />
-            <input className="inp" placeholder="Quận/Huyện" value={adding.district} onChange={(e) => setAdding({ ...adding, district: e.target.value })} />
-            <input className="inp" placeholder="Tỉnh/TP" value={adding.province} onChange={(e) => setAdding({ ...adding, province: e.target.value })} />
-          </div>
+          <input className="inp" placeholder="Số nhà, tên đường" value={adding.addressLine1} onChange={(e) => setAdding({ ...adding, addressLine1: e.target.value })} required />
+          <AddressPicker
+            value={adding}
+            onChange={(addr) => setAdding(a => ({ ...a, ...addr }))}
+          />
           <label style={{ fontSize: 13, color: '#4a443c' }}><input type="checkbox" style={{ width: 'auto', marginRight: 6 }} checked={adding.isDefault} onChange={(e) => setAdding({ ...adding, isDefault: e.target.checked })} /> Đặt làm mặc định</label>
           <div style={{ display: 'flex', gap: 10 }}><button className="btn btn-primary btn-sm">Lưu</button><button type="button" className="btn btn-outline btn-sm" onClick={() => setAdding(null)}>Hủy</button></div>
         </form>
