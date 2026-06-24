@@ -21,11 +21,15 @@ import * as adminx from '../controllers/adminController.js';
 import * as exp from '../controllers/exportController.js';
 import * as uploadCtrl from '../controllers/uploadController.js';
 import * as homeCtrl from '../controllers/homeController.js';
+import * as bundle from '../controllers/bundleController.js';
 
 const r = Router();
 
 // ---------- Home aggregate ----------
 r.get('/home', homeCtrl.home);
+
+// ---------- Bundles (public) ----------
+r.get('/bundles/by-product/:productId', bundle.bundleByProduct);
 
 // ---------- Auth ----------
 r.post('/auth/register', auth.register);
@@ -156,6 +160,13 @@ admin.get('/audit-logs', adminx.auditLogs);
 // Excel export
 admin.get('/export/orders', exp.exportOrders);
 admin.get('/export/products', exp.exportProducts);
+
+// Bundles
+admin.get('/bundles', bundle.listBundles);
+admin.get('/bundles/:id', bundle.getBundle);
+admin.post('/bundles', bundle.createBundle);
+admin.put('/bundles/:id', bundle.updateBundle);
+admin.delete('/bundles/:id', bundle.deleteBundle);
 
 // Image upload
 admin.post('/upload/:folder', upload.array('files', 10), uploadCtrl.uploadImages);

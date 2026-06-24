@@ -13,6 +13,7 @@ export default function AdminLayout() {
           <NavLink to="/admin/orders">Đơn hàng</NavLink>
           <NavLink to="/admin/coupons">Mã giảm giá</NavLink>
           <NavLink to="/admin/flash-sales">Flash Sale</NavLink>
+          <NavLink to="/admin/bundles">Mua kèm</NavLink>
           <NavLink to="/admin/banners">Banner</NavLink>
           <NavLink to="/admin/posts">Blog</NavLink>
           <NavLink to="/admin/reviews">Đánh giá</NavLink>

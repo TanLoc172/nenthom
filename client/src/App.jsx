@@ -35,6 +35,7 @@ import AdminOrders from './pages/admin/Orders.jsx';
 import AdminOrderDetail from './pages/admin/OrderDetail.jsx';
 import AdminCoupons from './pages/admin/Coupons.jsx';
 import AdminFlashSales from './pages/admin/FlashSales.jsx';
+import AdminBundles from './pages/admin/Bundles.jsx';
 import AdminBanners from './pages/admin/Banners.jsx';
 import AdminPosts from './pages/admin/Posts.jsx';
 import AdminReviews from './pages/admin/Reviews.jsx';
@@ -85,6 +86,7 @@ export default function App() {
           <Route path="/admin/orders/:id" element={<AdminOrderDetail />} />
           <Route path="/admin/coupons" element={<AdminCoupons />} />
           <Route path="/admin/flash-sales" element={<AdminFlashSales />} />
+          <Route path="/admin/bundles" element={<AdminBundles />} />
           <Route path="/admin/banners" element={<AdminBanners />} />
           <Route path="/admin/posts" element={<AdminPosts />} />
           <Route path="/admin/reviews" element={<AdminReviews />} />

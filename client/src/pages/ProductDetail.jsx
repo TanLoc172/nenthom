@@ -21,12 +21,14 @@ export default function ProductDetail() {
   const [added, setAdded] = useState(false);
   const [wished, setWished] = useState(false);
   const [tab, setTab] = useState('desc');
+  const [bundle, setBundle] = useState(null);
 
   const loadReviews = (productId) =>
     api.get(`/products/${productId}/reviews`).then((rr) => setReviews(rr.data)).catch(() => {});
 
   useEffect(() => {
     setData(null);
+    setBundle(null);
     setTab('desc');
     setQty(1);
     setGi(0);
@@ -34,6 +36,7 @@ export default function ProductDetail() {
       setData(r.data);
       setVariant(r.data.product.variants?.[0] || null);
       loadReviews(r.data.product._id);
+      api.get(`/bundles/by-product/${r.data.product._id}`).then((rb) => setBundle(rb.data)).catch(() => {});
     }).catch(() => {});
   }, [slug]);
 
@@ -178,9 +181,9 @@ export default function ProductDetail() {
       </div>
 
       {/* Bundle Deal */}
-      {related?.length > 0 && (
+      {bundle?.companions?.length > 0 && (
         <div className="container" style={{ padding: '0 32px 56px' }}>
-          <BundleDeal main={product} companions={related.slice(0, 2)} addItem={addItem} />
+          <BundleDeal main={product} companions={bundle.companions} discountPercent={bundle.discountPercent} label={bundle.label} addItem={addItem} />
         </div>
       )}
 
@@ -255,21 +258,19 @@ export default function ProductDetail() {
 }
 
 /* ── Bundle Deal ── */
-const BUNDLE_DISCOUNT = 0.1; // 10% off companions
-
-function BundleDeal({ main, companions, addItem }) {
+function BundleDeal({ main, companions, discountPercent = 10, label = 'Mua kèm tiết kiệm', addItem }) {
   const mainV = main.variants?.[0];
   const mainPrice = mainV?.price ?? 0;
   const mainImg = main.images?.[0] || mainV?.images?.[0];
 
-  const [selected, setSelected] = useState(() => companions.map(c => c._id));
+  const [selected, setSelected] = useState(() => companions.map(c => c._id?.toString()));
   const [adding, setAdding] = useState(false);
   const [done, setDone] = useState(false);
 
   const toggle = (id) =>
     setSelected(s => s.includes(id) ? s.filter(x => x !== id) : [...s, id]);
 
-  const pickedCompanions = companions.filter(c => selected.includes(c._id));
+  const pickedCompanions = companions.filter(c => selected.includes(c._id?.toString()));
 
   const companionTotal = pickedCompanions.reduce((sum, c) => {
     const v = c.variants?.[0];
@@ -277,7 +278,7 @@ function BundleDeal({ main, companions, addItem }) {
   }, 0);
 
   const originalTotal = mainPrice + companionTotal;
-  const savedAmount   = Math.round(companionTotal * BUNDLE_DISCOUNT);
+  const savedAmount   = Math.round(companionTotal * (discountPercent / 100));
   const bundleTotal   = originalTotal - savedAmount;
   const count = 1 + pickedCompanions.length;
 
@@ -325,7 +326,7 @@ function BundleDeal({ main, companions, addItem }) {
           <div style={{ fontSize: 13, fontWeight: 600, color: '#2C2C2C', lineHeight: 1.3, marginBottom: 4 }}>{product.name}</div>
           <div style={{ fontSize: 13, color: 'var(--wood)', fontWeight: 700 }}>{money(price)}</div>
           {!isMain && (
-            <div style={{ fontSize: 11, color: '#1a7a45', marginTop: 2 }}>Tiết kiệm {Math.round(price * BUNDLE_DISCOUNT).toLocaleString('vi-VN')}₫</div>
+            <div style={{ fontSize: 11, color: '#1a7a45', marginTop: 2 }}>Tiết kiệm {Math.round(price * (discountPercent / 100)).toLocaleString('vi-VN')}₫</div>
           )}
         </div>
       </div>
@@ -338,8 +339,8 @@ function BundleDeal({ main, companions, addItem }) {
       <div style={{ background: 'linear-gradient(90deg,#8B6B4A 0%,#a07d5a 100%)', padding: '14px 24px', display: 'flex', alignItems: 'center', gap: 12 }}>
         <span style={{ fontSize: 18 }}>🎁</span>
         <div>
-          <div style={{ color: '#fff', fontWeight: 700, fontSize: 15, letterSpacing: .2 }}>Đề xuất mua kèm — Giá hời hơn!</div>
-          <div style={{ color: 'rgba(255,255,255,.75)', fontSize: 12, marginTop: 1 }}>Chọn sản phẩm bên dưới để nhận giảm 10% khi mua cùng</div>
+          <div style={{ color: '#fff', fontWeight: 700, fontSize: 15, letterSpacing: .2 }}>{label}</div>
+          <div style={{ color: 'rgba(255,255,255,.75)', fontSize: 12, marginTop: 1 }}>Chọn sản phẩm bên dưới để nhận giảm {discountPercent}% khi mua cùng</div>
         </div>
       </div>
 
@@ -348,7 +349,7 @@ function BundleDeal({ main, companions, addItem }) {
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, marginBottom: 20 }}>
           <ProductChip product={main} isMain checked />
           {companions.map(c => (
-            <ProductChip key={c._id} product={c} isMain={false} checked={selected.includes(c._id)} onToggle={() => toggle(c._id)} />
+            <ProductChip key={c._id} product={c} isMain={false} checked={selected.includes(c._id?.toString())} onToggle={() => toggle(c._id?.toString())} />
           ))}
         </div>
 
