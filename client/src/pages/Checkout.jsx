@@ -90,12 +90,9 @@ export default function Checkout() {
 
   const startPolling = (id) => {
     clearInterval(pollRef.current);
-    let tick = 0;
     pollRef.current = setInterval(async () => {
       try {
-        tick += 1;
-        const sync = tick % 5 === 0 ? '?sync=1' : '';
-        const r = await api.get(`/payment/check/${id}${sync}`);
+        const r = await api.get(`/payment/check/${id}?sync=1`);
         if (r.data?.paid) {
           clearInterval(pollRef.current);
           localStorage.removeItem(PENDING_KEY);

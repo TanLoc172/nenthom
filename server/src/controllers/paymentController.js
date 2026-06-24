@@ -53,16 +53,22 @@ export const checkPayment = asyncHandler(async (req, res) => {
     if (!cassoRes.ok) return res.json({ paid: false });
 
     const cassoData = await cassoRes.json();
-    const transactions = cassoData?.data?.records || [];
+    // Casso v2: data.records array; fallback to data as array
+    const transactions = Array.isArray(cassoData?.data?.records)
+      ? cassoData.data.records
+      : Array.isArray(cassoData?.data)
+        ? cassoData.data
+        : [];
 
     for (const tx of transactions) {
-      const desc = (tx.description || '').toUpperCase();
+      const desc = (tx.description || tx.memo || '').toUpperCase();
       const nums = extractOrderNumbers(desc);
       if (nums.includes(order.orderNumber.toUpperCase())) {
-        if (Math.abs((tx.amount || 0) - order.pricing.totalAmount) < 1) {
+        // Loose amount check: within 500đ tolerance (bank fees etc.)
+        if (Math.abs((tx.amount || 0) - order.pricing.totalAmount) <= 500) {
           order.payment.status = 'paid';
           order.payment.transactionId = String(tx.id || tx.tid || '');
-          order.payment.paidAt = new Date(tx.when || Date.now());
+          order.payment.paidAt = new Date(tx.when || tx.bookingDate || Date.now());
           if (order.orderStatus === 'pending') order.orderStatus = 'confirmed';
           order.statusHistory.push({ status: order.orderStatus, comment: 'Tự động đối soát qua Casso API' });
           await order.save();
@@ -70,7 +76,9 @@ export const checkPayment = asyncHandler(async (req, res) => {
         }
       }
     }
-  } catch { /* Casso lỗi, client tiếp tục poll */ }
+  } catch (err) {
+    console.error('[Casso]', err.message);
+  }
 
   res.json({ paid: false });
 });
