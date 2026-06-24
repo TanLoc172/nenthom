@@ -93,9 +93,10 @@ export default function QuickView({ slug, onClose }) {
               </>}
             </div>
 
-            {/* Short desc */}
-            {product.shortDescription && (
-              <p style={{ margin: 0, fontSize: 13.5, color: '#6b6560', lineHeight: 1.6 }}>{product.shortDescription}</p>
+            {/* Description */}
+            {product.description && (
+              <div style={{ margin: 0, fontSize: 13.5, color: '#6b6560', lineHeight: 1.6, maxHeight: 130, overflowY: 'auto' }}
+                dangerouslySetInnerHTML={{ __html: product.description }} />
             )}
 
             {/* Variants */}

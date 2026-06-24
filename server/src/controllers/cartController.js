@@ -3,19 +3,25 @@ import crypto from 'crypto';
 import Cart from '../models/Cart.js';
 import Product from '../models/Product.js';
 
-// Resolve the cart for the current request (user or guest session cookie).
+// Resolve the cart for the current request (user or guest session).
+// Guest carts: token stored in localStorage client-side, sent as X-Cart-Token header.
+// Cookie fallback kept for backwards compat.
 async function getOrCreateCart(req, res) {
   if (req.user) {
     let cart = await Cart.findOne({ userId: req.user.id });
     if (!cart) cart = await Cart.create({ userId: req.user.id, items: [] });
     return cart;
   }
-  let token = req.cookies?.cart_token;
+  // Header takes priority (cross-domain production), cookie is fallback (dev/same-domain)
+  let token = req.headers['x-cart-token'] || req.cookies?.cart_token;
   if (!token) {
     token = crypto.randomBytes(16).toString('hex');
+    // Send token in response header so client can store in localStorage
+    res.setHeader('X-Cart-Token', token);
     res.cookie('cart_token', token, {
       httpOnly: true,
-      sameSite: 'lax',
+      sameSite: 'none',
+      secure: true,
       maxAge: 30 * 24 * 60 * 60 * 1000,
     });
   }

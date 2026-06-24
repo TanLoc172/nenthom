@@ -7,8 +7,11 @@ const addressSchema = new mongoose.Schema({
   addressLine1: { type: String, default: '' },
   addressLine2: String,
   ward: { type: String, default: '' },
+  wardCode: { type: String, default: '' },
   district: { type: String, default: '' },
+  districtCode: { type: String, default: '' },
   province: { type: String, default: '' },
+  provinceCode: { type: String, default: '' },
   country: { type: String, default: 'Vietnam' },
   isDefault: { type: Boolean, default: false },
 }, { _id: false });

@@ -10,7 +10,7 @@ export const getVietQr = asyncHandler(async (req, res) => {
   const acc = process.env.VIETQR_ACCOUNT_NO;
   const template = process.env.VIETQR_TEMPLATE || 'compact2';
   const amount = Math.round(order.pricing.totalAmount);
-  const addInfo = order.orderNumber; // dùng để đối soát qua Casso
+  const addInfo = order.orderNumber;
   const accountName = encodeURIComponent(process.env.VIETQR_ACCOUNT_NAME || '');
 
   const qrUrl = `https://img.vietqr.io/image/${bin}-${acc}-${template}.png?amount=${amount}&addInfo=${encodeURIComponent(addInfo)}&accountName=${accountName}`;
@@ -27,8 +27,53 @@ export const getVietQr = asyncHandler(async (req, res) => {
   });
 });
 
-// POST /api/payment/casso/webhook  -> reconcile bank transfers (Casso)
-// Casso gửi danh sách giao dịch; ta khớp theo addInfo (orderNumber) + amount.
+// GET /api/payment/check/:orderId  -> client polls this; server queries Casso API + reconciles
+export const checkPayment = asyncHandler(async (req, res) => {
+  const order = await Order.findById(req.params.orderId);
+  if (!order) return res.status(404).json({ message: 'Không tìm thấy đơn hàng' });
+
+  // Already paid — return immediately
+  if (order.payment.status === 'paid') {
+    return res.json({ paid: true, orderStatus: order.orderStatus });
+  }
+
+  // Query Casso for recent transactions
+  const apiKey = process.env.CASSO_API_KEY;
+  if (!apiKey) return res.json({ paid: false });
+
+  try {
+    const cassoRes = await fetch('https://oauth.casso.vn/v2/transactions?sort=DESC&pageSize=50', {
+      headers: { Authorization: `apikey ${apiKey}`, 'Content-Type': 'application/json' },
+    });
+    if (!cassoRes.ok) return res.json({ paid: false });
+
+    const cassoData = await cassoRes.json();
+    const transactions = cassoData?.data?.records || [];
+
+    for (const tx of transactions) {
+      const desc = (tx.description || '').toUpperCase();
+      const nums = extractOrderNumbers(desc);
+      if (nums.includes(order.orderNumber.toUpperCase())) {
+        // Amount check with small tolerance (1đ)
+        if (Math.abs((tx.amount || 0) - order.pricing.totalAmount) < 1) {
+          order.payment.status = 'paid';
+          order.payment.transactionId = String(tx.id || tx.tid || '');
+          order.payment.paidAt = new Date(tx.when || Date.now());
+          if (order.orderStatus === 'pending') order.orderStatus = 'confirmed';
+          order.statusHistory.push({ status: order.orderStatus, comment: 'Tự động đối soát qua Casso API' });
+          await order.save();
+          return res.json({ paid: true, orderStatus: order.orderStatus });
+        }
+      }
+    }
+  } catch {
+    // Casso API lỗi — fallback về unpaid, client tiếp tục poll
+  }
+
+  res.json({ paid: false });
+});
+
+// POST /api/payment/casso/webhook  -> webhook từ Casso (backup)
 export const cassoWebhook = asyncHandler(async (req, res) => {
   const secure = req.headers['secure-token'];
   if (process.env.CASSO_SECURE_TOKEN && secure !== process.env.CASSO_SECURE_TOKEN)
@@ -47,7 +92,7 @@ export const cassoWebhook = asyncHandler(async (req, res) => {
       order.payment.transactionId = String(tx.id || tx.tid || '');
       order.payment.paidAt = new Date();
       if (order.orderStatus === 'pending') order.orderStatus = 'confirmed';
-      order.statusHistory.push({ status: order.orderStatus, comment: 'Tự động đối soát qua Casso (đã thanh toán)' });
+      order.statusHistory.push({ status: order.orderStatus, comment: 'Tự động đối soát qua Casso webhook' });
       await order.save();
       matched++;
     }
@@ -56,6 +101,6 @@ export const cassoWebhook = asyncHandler(async (req, res) => {
 });
 
 function extractOrderNumbers(desc) {
-  const m = desc.match(/ES\d{8,}/g);
-  return m || [];
+  const m = desc.match(/ES\d{8,}/gi);
+  return m ? m.map(s => s.toUpperCase()) : [];
 }

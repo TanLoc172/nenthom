@@ -25,7 +25,7 @@ const siteSettingSchema = new mongoose.Schema({
   logoUrl: { type: String, default: '' },
   faviconUrl: String,
   contact: { type: contactSchema, default: () => ({}) },
-  defaultShippingFee: { type: Number, default: 30000 },
+  defaultShippingFee: { type: Number, default: 2000 },
   shippingZones: { type: [shippingZoneSchema], default: [] },
   seo: { type: seoSchema, default: () => ({}) },
 }, { timestamps: { createdAt: false, updatedAt: true }, collection: 'SiteSettings', _id: false });

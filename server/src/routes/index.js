@@ -92,6 +92,7 @@ r.post('/contact', contact.submitContact);
 
 // ---------- Payment ----------
 r.get('/payment/vietqr/:orderId', payment.getVietQr);
+r.get('/payment/check/:orderId', payment.checkPayment);
 r.post('/payment/casso/webhook', payment.cassoWebhook);
 
 // ========== ADMIN ==========

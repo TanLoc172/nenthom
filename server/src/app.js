@@ -25,6 +25,7 @@ app.use(
       cb(null, false);
     },
     credentials: true,
+    exposedHeaders: ['X-Cart-Token'],
   })
 );
 app.use(express.json({ limit: '5mb' }));

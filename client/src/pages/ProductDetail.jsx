@@ -100,9 +100,20 @@ export default function ProductDetail() {
               ))}
             </div>
           )}
-          <div className="candle big" style={{ background: '#ece5da' }}>
+          <div className="candle big" style={{ background: '#ece5da', overflow: 'hidden', cursor: 'zoom-in' }}
+            onMouseMove={e => {
+              const r = e.currentTarget.getBoundingClientRect();
+              const x = ((e.clientX - r.left) / r.width * 100).toFixed(1);
+              const y = ((e.clientY - r.top) / r.height * 100).toFixed(1);
+              const imgEl = e.currentTarget.querySelector('img');
+              if (imgEl) { imgEl.style.transformOrigin = `${x}% ${y}%`; imgEl.style.transform = 'scale(2)'; }
+            }}
+            onMouseLeave={e => {
+              const imgEl = e.currentTarget.querySelector('img');
+              if (imgEl) { imgEl.style.transform = 'scale(1)'; imgEl.style.transformOrigin = 'center'; }
+            }}>
             {img
-              ? <img src={img} alt={product.name} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
+              ? <img src={img} alt={product.name} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', transition: 'transform .15s ease, transform-origin 0s' }} />
               : <><div className="jar"></div><div className="flame"></div></>}
           </div>
         </div>
