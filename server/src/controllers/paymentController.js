@@ -110,6 +110,49 @@ export const cassoWebhook = asyncHandler(async (req, res) => {
   res.json({ success: true, matched });
 });
 
+// GET /api/payment/casso-debug  (admin only) — raw Casso transactions + order match info
+export const cassoDebug = asyncHandler(async (req, res) => {
+  const apiKey = process.env.CASSO_API_KEY;
+  if (!apiKey) return res.status(400).json({ message: 'CASSO_API_KEY chưa cấu hình' });
+
+  const cassoRes = await fetch('https://oauth.casso.vn/v2/transactions?sort=DESC&pageSize=10', {
+    headers: { Authorization: `apikey ${apiKey}` },
+  });
+  const raw = await cassoRes.json();
+  const transactions = Array.isArray(raw?.data?.records) ? raw.data.records
+    : Array.isArray(raw?.data) ? raw.data : [];
+
+  res.json({
+    httpStatus: cassoRes.status,
+    error: raw.error,
+    totalRecords: raw?.data?.totalRecords ?? transactions.length,
+    transactions: transactions.slice(0, 10).map(tx => ({
+      id: tx.id,
+      amount: tx.amount,
+      description: tx.description,
+      memo: tx.memo,
+      when: tx.when,
+      bookingDate: tx.bookingDate,
+      extractedOrderNums: extractOrderNumbers((tx.description || tx.memo || '').toUpperCase()),
+    })),
+  });
+});
+
+// POST /api/admin/orders/:id/confirm-payment  (admin manual confirm)
+export const adminConfirmPayment = asyncHandler(async (req, res) => {
+  const order = await Order.findById(req.params.id);
+  if (!order) return res.status(404).json({ message: 'Không tìm thấy đơn hàng' });
+  if (order.payment.status === 'paid') return res.json({ message: 'Đã thanh toán rồi', order });
+
+  order.payment.status = 'paid';
+  order.payment.paidAt = new Date();
+  order.payment.transactionId = req.body.transactionId || 'manual';
+  if (order.orderStatus === 'pending') order.orderStatus = 'confirmed';
+  order.statusHistory.push({ status: order.orderStatus, comment: `Xác nhận thủ công bởi admin` });
+  await order.save();
+  res.json({ message: 'Đã xác nhận thanh toán', order });
+});
+
 function extractOrderNumbers(desc) {
   const m = desc.match(/ES\d{8,}/gi);
   return m ? m.map(s => s.toUpperCase()) : [];

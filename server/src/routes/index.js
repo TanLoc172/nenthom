@@ -94,6 +94,7 @@ r.post('/contact', contact.submitContact);
 r.get('/payment/vietqr/:orderId', payment.getVietQr);
 r.get('/payment/check/:orderId', payment.checkPayment);
 r.post('/payment/casso/webhook', payment.cassoWebhook);
+r.get('/payment/casso-debug', payment.cassoDebug);
 
 // ========== ADMIN ==========
 const admin = Router();
@@ -113,6 +114,7 @@ admin.delete('/categories/:id', category.deleteCategory);
 
 admin.get('/orders', order.adminListOrders);
 admin.put('/orders/:id/status', order.updateOrderStatus);
+admin.post('/orders/:id/confirm-payment', payment.adminConfirmPayment);
 
 admin.get('/coupons', coupon.listCoupons);
 admin.post('/coupons', coupon.createCoupon);

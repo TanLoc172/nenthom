@@ -26,6 +26,11 @@ export default function AdminOrderDetail() {
     setSaving(true);
     try { await api.put(`/admin/orders/${id}/status`, { paymentStatus }); await load(); } finally { setSaving(false); }
   };
+  const confirmPayment = async () => {
+    if (!window.confirm('Xác nhận đã nhận được tiền chuyển khoản?')) return;
+    setSaving(true);
+    try { await api.post(`/admin/orders/${id}/confirm-payment`); await load(); } finally { setSaving(false); }
+  };
 
   return (
     <div>
@@ -143,8 +148,20 @@ export default function AdminOrderDetail() {
             <div className="acard-body">
               <div className="info-row"><span className="info-lbl">Phương thức</span><span>{o.payment?.method}</span></div>
               <div className="info-row"><span className="info-lbl">Trạng thái</span><span className={`pay-badge ${pi.css}`}>{pi.label}</span></div>
+              {o.payment?.transactionId && <div className="info-row"><span className="info-lbl">Mã GD</span><span style={{ fontFamily: 'monospace', fontSize: 12 }}>{o.payment.transactionId}</span></div>}
               {o.payment?.paidAt && <div className="info-row"><span className="info-lbl">Ngày TT</span><span>{new Date(o.payment.paidAt).toLocaleString('vi-VN')}</span></div>}
               <div className="info-row"><span className="info-lbl">Đặt lúc</span><span>{new Date(o.createdAt).toLocaleString('vi-VN')}</span></div>
+              {o.payment?.status !== 'paid' && o.payment?.method === 'VietQR' && (
+                <div style={{ marginTop: 14 }}>
+                  <button className="btn btn-sm" style={{ background: '#1a7a45', color: '#fff', border: 'none' }}
+                    onClick={confirmPayment} disabled={saving}>
+                    ✓ Xác nhận đã nhận tiền
+                  </button>
+                  <p style={{ fontSize: 11, color: '#9b9289', marginTop: 6 }}>
+                    Dùng khi hệ thống tự động không nhận được từ Casso.
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         </div>
