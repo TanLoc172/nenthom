@@ -52,6 +52,7 @@ export default function Checkout() {
   const [savedCoupon, setSavedCoupon] = useState(saved?.couponCode || '');
   const [savedDiscount, setSavedDiscount] = useState(saved?.discount || 0);
   const pollRef = useRef(null);
+  const [pollChecked, setPollChecked] = useState(false);
 
   // Restore cart items snapshot for QR screen (cart is cleared after order)
   const [cartSnapshot, setCartSnapshot] = useState(saved?.cartSnapshot || null);
@@ -73,6 +74,7 @@ export default function Checkout() {
 
   // Cleanup polling on unmount
   useEffect(() => () => clearInterval(pollRef.current), []);
+  const syncSkipRef = useRef(0); // ticks to skip Casso sync after 429
 
   const applyAddress = (addr) => {
     setSelectedAddr(addr.addressId);
@@ -105,17 +107,36 @@ export default function Checkout() {
 
   const startPolling = (id) => {
     clearInterval(pollRef.current);
-    pollRef.current = setInterval(async () => {
+    setPollChecked(false);
+    syncSkipRef.current = 0;
+    let tick = 0;
+
+    const poll = async () => {
+      tick++;
+      // Casso sync every 5th tick (=15s). Skip when rate-limited.
+      const doSync = tick % 5 === 1 && syncSkipRef.current === 0;
+      if (syncSkipRef.current > 0) syncSkipRef.current--;
+
       try {
-        const r = await api.get(`/payment/check/${id}?sync=1`);
+        const url = `/payment/check/${id}${doSync ? '?sync=1' : ''}`;
+        const r = await api.get(url);
         if (r.data?.paid) {
           clearInterval(pollRef.current);
           localStorage.removeItem(PENDING_KEY);
           await refresh();
           setStep('success');
+          return;
         }
+        // On 429 pause Casso sync for 20 ticks (~60s), then auto-resume
+        if (doSync && r.data?.cassoStatus === 429) {
+          syncSkipRef.current = 20;
+        }
+        setPollChecked(true);
       } catch { }
-    }, 3000);
+    };
+
+    poll(); // immediate first check
+    pollRef.current = setInterval(poll, 3000);
   };
 
   const submit = async (e) => {
@@ -193,6 +214,7 @@ export default function Checkout() {
     shipping={savedShipping || form}
     couponCode={savedCoupon || coupon}
     pricing={pricing}
+    pollChecked={pollChecked}
     onCancel={() => { localStorage.removeItem(PENDING_KEY); setStep('form'); }}
   />;
   if (step === 'success') return <SuccessScreen orderId={orderId} navigate={navigate} />;
@@ -364,7 +386,7 @@ export default function Checkout() {
 /* ─────────────────────────────────────────────
    QR PAYMENT SCREEN
 ───────────────────────────────────────────── */
-function QRScreen({ qrData, cart, discount, orderId, shipping = {}, couponCode = '', pricing = null, onCancel }) {
+function QRScreen({ qrData, cart, discount, orderId, shipping = {}, couponCode = '', pricing = null, pollChecked = false, onCancel }) {
   const EXPIRE = 15 * 60; // 15 phút
   const [secs, setSecs] = useState(EXPIRE);
   const [copied, setCopied] = useState(null);
@@ -417,7 +439,9 @@ function QRScreen({ qrData, cart, discount, orderId, shipping = {}, couponCode =
             <span style={{ width: 9, height: 9, borderRadius: '50%', background: '#f5a623', display: 'inline-block', animation: 'pulse 1.4s ease-in-out infinite', flexShrink: 0 }} />
             <div>
               <div style={{ fontSize: 13, fontWeight: 600 }}>Đang chờ xác nhận…</div>
-              <div style={{ fontSize: 11, color: '#9b9289' }}>Trang tự cập nhật khi nhận được tiền</div>
+              <div style={{ fontSize: 11, color: '#9b9289' }}>
+                {pollChecked ? 'Đang theo dõi — tự cập nhật khi nhận được tiền' : 'Trang tự cập nhật khi nhận được tiền'}
+              </div>
             </div>
           </div>
           {/* Timer / expired */}

@@ -47,7 +47,7 @@ export const checkPayment = asyncHandler(async (req, res) => {
   if (!apiKey) return res.json({ paid: false });
 
   try {
-    const cassoRes = await fetch('https://oauth.casso.vn/v2/transactions?sort=DESC&pageSize=50', {
+    const cassoRes = await fetch('https://oauth.casso.vn/v2/transactions?sort=DESC&pageSize=100', {
       headers: { Authorization: `apikey ${apiKey}`, 'Content-Type': 'application/json' },
     });
     if (!cassoRes.ok) {
@@ -56,6 +56,13 @@ export const checkPayment = asyncHandler(async (req, res) => {
     }
 
     const cassoData = await cassoRes.json();
+
+    // Casso encodes errors in body even on HTTP 200 (e.g., invalid key → error: 401)
+    if (cassoData.error !== 0) {
+      console.warn('[Casso] API error:', cassoData.error, cassoData.message);
+      return res.json({ paid: false, cassoError: cassoData.error, cassoMessage: cassoData.message });
+    }
+
     // Casso v2: data.records array; fallback to data as array
     const transactions = Array.isArray(cassoData?.data?.records)
       ? cassoData.data.records
@@ -63,12 +70,20 @@ export const checkPayment = asyncHandler(async (req, res) => {
         ? cassoData.data
         : [];
 
+    const orderNum = order.orderNumber.toUpperCase();
+
     for (const tx of transactions) {
-      const desc = (tx.description || tx.memo || '').toUpperCase();
+      // Only match incoming (credit) transactions
+      if ((tx.amount || 0) <= 0) continue;
+
+      // Search all available description fields
+      const desc = [tx.description, tx.memo, tx.content, tx.transferContent]
+        .filter(Boolean).join(' ').toUpperCase();
+
       const nums = extractOrderNumbers(desc);
-      if (nums.includes(order.orderNumber.toUpperCase())) {
-        // Loose amount check: within 500đ tolerance (bank fees etc.)
-        if (Math.abs((tx.amount || 0) - order.pricing.totalAmount) <= 500) {
+      if (nums.includes(orderNum)) {
+        // 1000đ tolerance covers minor bank rounding/fees
+        if (Math.abs(tx.amount - order.pricing.totalAmount) <= 1000) {
           order.payment.status = 'paid';
           order.payment.transactionId = String(tx.id || tx.tid || '');
           order.payment.paidAt = new Date(tx.when || tx.bookingDate || Date.now());
@@ -81,9 +96,10 @@ export const checkPayment = asyncHandler(async (req, res) => {
     }
   } catch (err) {
     console.error('[Casso]', err.message);
+    return res.json({ paid: false, cassoError: -1, cassoMessage: err.message });
   }
 
-  res.json({ paid: false });
+  res.json({ paid: false, checked: true });
 });
 
 // POST /api/payment/casso/webhook  -> webhook từ Casso (backup)
@@ -95,12 +111,14 @@ export const cassoWebhook = asyncHandler(async (req, res) => {
   const transactions = req.body?.data || [];
   let matched = 0;
   for (const tx of transactions) {
-    const desc = (tx.description || '').toUpperCase();
+    if ((tx.amount || 0) <= 0) continue;
+    const desc = [tx.description, tx.memo, tx.content, tx.transferContent]
+      .filter(Boolean).join(' ').toUpperCase();
     const order = await Order.findOne({
       orderNumber: { $in: extractOrderNumbers(desc) },
       'payment.status': 'unpaid',
     });
-    if (order && Math.abs((tx.amount || 0) - order.pricing.totalAmount) < 1) {
+    if (order && tx.amount > 0 && Math.abs(tx.amount - order.pricing.totalAmount) <= 1000) {
       order.payment.status = 'paid';
       order.payment.transactionId = String(tx.id || tx.tid || '');
       order.payment.paidAt = new Date();

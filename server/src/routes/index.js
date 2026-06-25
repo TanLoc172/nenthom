@@ -94,7 +94,6 @@ r.post('/contact', contact.submitContact);
 r.get('/payment/vietqr/:orderId', payment.getVietQr);
 r.get('/payment/check/:orderId', payment.checkPayment);
 r.post('/payment/casso/webhook', payment.cassoWebhook);
-r.get('/payment/casso-debug', payment.cassoDebug);
 
 // ========== ADMIN ==========
 const admin = Router();
@@ -157,6 +156,9 @@ admin.get('/audit-logs', adminx.auditLogs);
 // Excel export
 admin.get('/export/orders', exp.exportOrders);
 admin.get('/export/products', exp.exportProducts);
+
+// Casso debug (admin only — exposes raw transaction data)
+admin.get('/payment/casso-debug', payment.cassoDebug);
 
 // Bundles
 admin.get('/bundles', bundle.listBundles);
