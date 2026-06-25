@@ -31,7 +31,7 @@ export const getVietQr = asyncHandler(async (req, res) => {
 // Fast path: check DB only (called every 1s).
 // Slow path: also call Casso API when ?sync=1 (called every 5s).
 export const checkPayment = asyncHandler(async (req, res) => {
-  const order = await Order.findById(req.params.orderId, 'payment orderStatus pricing orderNumber');
+  const order = await Order.findById(req.params.orderId, 'payment orderStatus pricing orderNumber statusHistory');
   if (!order) return res.status(404).json({ message: 'Không tìm thấy đơn hàng' });
 
   if (order.payment.status === 'paid') {
